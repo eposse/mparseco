@@ -1,4 +1,9 @@
-module MyLib (someFunc) where
+module Mparseco
+(
+    module Mparseco.Core,
+    module Mparseco.BasicParsers
+)
+where
 
-someFunc :: IO ()
-someFunc = putStrLn "someFunc"
+import Mparseco.Core
+import Mparseco.BasicParsers
