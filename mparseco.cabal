@@ -4,17 +4,19 @@ cabal-version:       3.0
 
 name:                mparseco
 version:             0.1.0.0
--- synopsis:
--- description:
+synopsis:            A minimal monadic parsing combinator library.
+description:         mperseco is a minimalist monadic parser combinator library. It is essentially an implementation of the parsing combinators from Philip Wadler's seminal paper "[Monads for functional programming](https://link.springer.com/chapter/10.1007/978-3-662-02880-3_8)". It can be seen as a minimal subset of Haskell's well known library "[parsec](https://hackage.haskell.org/package/parsec)".
 homepage:            https://github.com/eposse/mperseco
 -- bug-reports:
 -- license:
 license-file:        LICENSE
 author:              Ernesto Posse
 maintainer:          eposse@gmail.com
--- copyright:
--- category:
+copyright:           (c) 2021-2025 Ernesto Posse
+category:            Parsing
+stability:           experimental
 extra-source-files:  CHANGELOG.md, README.md
+tested-with:         GHC == 8.8.3
 
 library
   exposed-modules:     Mparseco
@@ -29,4 +31,12 @@ test-suite mparseco-test
   type:                exitcode-stdio-1.0
   hs-source-dirs:      tests
   main-is:             MparsecoTests.hs
-  build-depends:       base ^>=4.13.0.0
+  build-depends:       base ^>=4.13.0.0, mparseco ==0.1.0.0
+
+executable mparsecoexample
+  main-is:             MparsecoExample.hs
+  -- other-modules:       Mparseco
+  -- other-extensions:
+  build-depends:       base ^>=4.13.0.0, mparseco ==0.1.0.0
+  hs-source-dirs:      examples
+  default-language:    Haskell2010
