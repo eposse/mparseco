@@ -31,8 +31,8 @@ test-suite mparseco-test
   type:                exitcode-stdio-1.0
   hs-source-dirs:      tests
   main-is:             MparsecoTests.hs
-  build-depends:       base ^>=4.13.0.0, mparseco ==0.1.0.0
-
+  build-depends:       base ^>=4.13.0.0, mparseco ==0.1.0.0, QuickCheck
+  
 executable mparsecoexample
   main-is:             MparsecoExample.hs
   -- other-modules:       Mparseco
