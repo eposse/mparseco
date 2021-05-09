@@ -29,6 +29,7 @@ library
 test-suite mparseco-test
   type:                detailed-0.9
   test-module:         MparsecoTests
+  other-modules:       MparsecoTests.Basic, MparsecoTests.Generators
   hs-source-dirs:      tests
   build-depends:       base ^>=4.13.0.0, Cabal ^>= 3.0.0.0, QuickCheck, cabal-test-quickcheck, mparseco
   default-language:    Haskell2010
