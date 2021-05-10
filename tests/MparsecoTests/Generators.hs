@@ -22,7 +22,8 @@ module MparsecoTests.Generators
     normalString,
     arbitraryASCIIString,
     arbitraryPrintableString,
-    arbitraryUnicodeString
+    arbitraryUnicodeString,
+    printSamples
 )
 where
 
@@ -52,3 +53,19 @@ normalString                = listOf $ normalChar
 arbitraryASCIIString        = listOf $ arbitraryASCIIChar
 arbitraryPrintableString    = listOf $ arbitraryPrintableChar
 arbitraryUnicodeString      = listOf $ arbitraryUnicodeChar
+
+printSamples = do
+    putStrLn "* letterString sample:"
+    sample letterString
+    putStrLn "* digitString sample:"
+    sample digitString
+    putStrLn "* alphaNumString sample:"
+    sample alphaNumString
+    putStrLn "* normalString sample:"
+    sample normalString
+    putStrLn "* arbitraryASCIIString sample:"
+    sample arbitraryASCIIString
+    putStrLn "* arbitraryPrintableString sample:"
+    sample arbitraryPrintableString
+    putStrLn "* arbitraryUnicodeString sample:"
+    sample arbitraryUnicodeString
