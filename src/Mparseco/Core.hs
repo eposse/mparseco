@@ -3,6 +3,7 @@ module Mparseco.Core
     State,
     MParser (..),
     parse,
+    parserEq,
     empty,
     (<|>),
     (|>),
@@ -24,6 +25,9 @@ instance Show (MParser a) where
 parse :: MParser a -> State -> [(a,State)]
 -- parse p s | trace ("parse (" ++ show p ++ ") " ++ show s) False = undefined
 parse (MParser f) s = f s
+
+parserEq :: Eq a => MParser a -> MParser a -> State -> Bool
+parserEq p q = \s -> parse p s == parse q s
 
 instance Functor MParser where
     fmap = liftM
@@ -53,6 +57,10 @@ allZeroOrMore p =
         (p >>= \a -> allZeroOrMore p >>= \x -> return (a:x))
     <|>
         return []
+-- allZeroOrMore p =
+--         do { a <- p; x <- allZeroOrMore p; return (a:x) }
+--     <|>
+--         return []
 
 -- | Biased choice
 (</>) :: Eq a => MParser a -> MParser a -> MParser a
@@ -64,3 +72,7 @@ maxZeroOrMore p =
         (p >>= \a -> maxZeroOrMore p >>= \x -> return (a:x))
     </>
         return []
+-- maxZeroOrMore p =
+--         do { a <- p; x <- maxZeroOrMore p; return (a:x) }
+--     </>
+--         return []

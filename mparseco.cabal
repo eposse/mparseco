@@ -20,7 +20,7 @@ tested-with:         GHC == 8.8.3
 
 library
   exposed-modules:     Mparseco
-  other-modules:       Mparseco.BasicParsers Mparseco.Core Mparseco.Utils
+  other-modules:       Mparseco.BasicParsers, Mparseco.Core, Mparseco.Utils
   -- other-extensions:
   build-depends:       base ^>=4.13.0.0
   hs-source-dirs:      src
@@ -29,15 +29,15 @@ library
 test-suite mparseco-test
   type:                detailed-0.9
   test-module:         MparsecoTests
-  other-modules:       MparsecoTests.BasicProperties, MparsecoTests.Generators
-  hs-source-dirs:      tests
+  other-modules:       MparsecoTests.BasicProperties, MparsecoTests.Generators, Mparseco, Mparseco.BasicParsers, Mparseco.Core, Mparseco.Utils
+  hs-source-dirs:      tests, src
   build-depends:       base ^>=4.13.0.0, Cabal ^>= 3.0.0.0, QuickCheck, cabal-test-quickcheck, mparseco
   default-language:    Haskell2010
 
-executable mparsecoexample
-  main-is:             MparsecoExample.hs
-  -- other-modules:       Mparseco
-  -- other-extensions:
-  build-depends:       base ^>=4.13.0.0, mparseco
-  hs-source-dirs:      examples
-  default-language:    Haskell2010
+-- executable mparsecoexample
+--   main-is:             MparsecoExample.hs
+--   -- other-modules:       Mparseco
+--   -- other-extensions:
+--   build-depends:       base ^>=4.13.0.0, mparseco
+--   hs-source-dirs:      examples
+--   default-language:    Haskell2010
