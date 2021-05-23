@@ -38,6 +38,12 @@ prop6_tests =
 prop7_tests =
     [ testProperty ("prop7 " ++ label ++ " oneChar oneChar oneChar") $ prop7 g oneChar oneChar oneChar | (label, g) <- generators ]
 
+prop8_tests =
+    [ testProperty ("prop8 " ++ label ++ " literalChar") $ prop8 g literalChar | (label, g) <- generators ]
+
+prop9_tests =
+    [ testProperty ("prop9 " ++ label ++ " oneChar") $ prop9 g oneChar | (label, g) <- generators ]
+
 
 tests :: IO [Test]
 tests = do
@@ -49,4 +55,6 @@ tests = do
         prop4_tests ++
         prop5_tests ++
         prop6_tests ++
-        prop7_tests
+        prop7_tests ++
+        prop8_tests ++
+        prop9_tests

@@ -1,3 +1,4 @@
+{-# LANGUAGE ScopedTypeVariables, RankNTypes #-}
 module MparsecoTests.BasicProperties
 (
     prop1,
@@ -6,13 +7,21 @@ module MparsecoTests.BasicProperties
     prop4,
     prop5,
     prop6,
-    prop7
+    prop7,
+    prop8,
+    prop9
 )
 where
 
 import Mparseco
 import Test.QuickCheck
 
+-- Variable naming conventions:
+-- Name     Description     Type
+-- g        Generator       Gen State
+-- s        State/String    State
+-- p,q,r    Parser          MParser a
+-- k        continuation    a -> MParser a
 
 -- Property 1:
 --   For any string s of type g, if s is non-empty, parsing one character of s results in a pair with the character and the remainder, and no other options.
@@ -62,3 +71,21 @@ prop6 g p = forAll g $ (p <|> empty) `parserEq` p
 -- Property 7:
 --   Alternation is associative.
 prop7 g p q r = forAll g $ (p <|> (q <|> r)) `parserEq` ((p <|> q) <|> r)
+
+-- Property 8:
+--   The identity of alternation is a zero of sequencing on the left.
+prop8 g k = forAll g $ (empty >>= k) `parserEq` empty
+
+-- Property 9:
+--   The identity of alternation is a zero of sequencing on the right.
+-- prop9 g p = forAll g $ (p >>= \a -> empty) `parserEq` empty
+prop9 g p = forAll g $ (p >>= discardAndThenEmpty) `parserEq` empty
+    where
+        discardAndThenEmpty :: Eq a => a -> MParser a
+        discardAndThenEmpty a = empty
+-- prop9 g p = forAll g $ (p >>= \(a :: Eq a => a) -> empty) `parserEq` empty
+-- prop9 :: Eq b => Gen State -> MParser b -> Property
+-- prop9 g p = forAll g $ (p >>= \a -> (empty :: Eq a => MParser a)) `parserEq` empty
+-- prop9 g p = forAll g $ (p >>= \a -> empty) `parserEq` (empty :: Eq a => MParser a)
+-- prop9 g p = forAll g $ (p >>= ((\a -> empty) :: Eq a => a -> MParser a)) `parserEq` empty
+-- prop9 g p = forAll g $ do { a <- p; empty } `parserEq` empty
