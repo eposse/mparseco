@@ -7,6 +7,7 @@ module Mparseco.Core
     empty,
     (<|>),
     (|>),
+    (</>),
     allZeroOrMore,
     maxZeroOrMore
 )

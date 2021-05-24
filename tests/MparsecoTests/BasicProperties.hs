@@ -9,7 +9,12 @@ module MparsecoTests.BasicProperties
     prop6,
     prop7,
     prop8,
-    prop9
+    prop9,
+    prop10,
+    prop11,
+    prop12,
+    prop13,
+    prop14
 )
 where
 
@@ -17,11 +22,12 @@ import Mparseco
 import Test.QuickCheck
 
 -- Variable naming conventions:
--- Name     Description     Type
--- g        Generator       Gen State
--- s        State/String    State
--- p,q,r    Parser          MParser a
--- k        continuation    a -> MParser a
+-- Name     Description         Type
+-- g        Generator           Gen State
+-- s        State/String        State
+-- p,q,r    Parser              MParser a
+-- k,h      Continuation        a -> MParser a
+-- f        Function/Predicate  a -> b, a -> Bool
 
 -- Property 1:
 --   For any string s of type g, if s is non-empty, parsing one character of s results in a pair with the character and the remainder, and no other options.
@@ -48,12 +54,12 @@ prop3 g p = forAll g $ (p >>= return) `parserEq` p
 
 -- Property 4:
 --   Sequencing is associative.
-prop4 g p1 p2 p3 =
+prop4 g p k h =
     forAll g $
-        do { a <- p1; do { b <- p2 a; p3 b }} `parserEq` do { b <- do { a <- p1; p2 a }; p3 b }
--- prop4 g p1 p2 p3 =
+        do { a <- p; do { b <- k a; h b }} `parserEq` do { b <- do { a <- p; k a }; h b }
+-- prop4 g p k h =
 --     forAll g $
---         (p1 >>= \a -> (p2 a >>= \b -> p3 b)) `parserEq` ((p1 >>= \a -> p2 a) >>= \b -> p3 b)
+--         (p >>= \a -> (k a >>= \b -> h b)) `parserEq` ((p >>= \a -> k a) >>= \b -> h b)
 
 
 -- Alternation laws
@@ -74,6 +80,7 @@ prop7 g p q r = forAll g $ (p <|> (q <|> r)) `parserEq` ((p <|> q) <|> r)
 
 -- Property 8:
 --   The identity of alternation is a zero of sequencing on the left.
+--   Sequencing preserves the identity of alternation.
 prop8 g k = forAll g $ (empty >>= k) `parserEq` empty
 
 -- Property 9:
@@ -89,3 +96,30 @@ prop9 g p = forAll g $ (p >>= discardAndThenEmpty) `parserEq` empty
 -- prop9 g p = forAll g $ (p >>= \a -> empty) `parserEq` (empty :: Eq a => MParser a)
 -- prop9 g p = forAll g $ (p >>= ((\a -> empty) :: Eq a => a -> MParser a)) `parserEq` empty
 -- prop9 g p = forAll g $ do { a <- p; empty } `parserEq` empty
+
+-- Property 10:
+--   Sequencing distributes leftward over alternation.
+prop10 g p q k = forAll g $ ((p <|> q) >>= k) `parserEq` ((p >>= k) <|> (q >>= k))
+
+-- Property 11:
+--   Sequencing distributes rightward over alternation if the parsers are unambiguous.
+prop11 g p k h = forAll g $ (p >>= \a -> ((k a) <|> (h a))) `parserEq` ((p >>= k) <|> (p >>= h))
+
+
+-- Filtering laws
+
+-- Property 12:
+--   The identity of alternation is a zero of filtering on the left.
+--   Filtering preserves the identity of alternation.
+prop12 g f = forAll g $ (empty |> f) `parserEq` empty
+
+-- Property 13:
+--   Filtering distributes leftward over alternation.
+prop13 g p q f = forAll g $ ((p <|> q) |> f) `parserEq` ((p |> f) <|> (q |> f))
+
+
+-- Biased choice laws
+
+-- Property 14:
+--   Sequencing distributes rightward over biased choice if the parsers are unambiguous.
+prop14 g p k h = forAll g $ ((p >>= k) </> (p >>= h)) `parserEq` (p >>= \a -> ((k a) </> (h a)))
