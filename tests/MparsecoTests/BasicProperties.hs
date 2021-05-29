@@ -2,19 +2,21 @@
 module MparsecoTests.BasicProperties
 (
     prop1,
-    prop2,
-    prop3,
-    prop4,
-    prop5,
-    prop6,
-    prop7,
-    prop8,
-    prop9,
-    prop10,
-    prop11,
-    prop12,
-    prop13,
-    prop14
+    prop_seq_1,
+    prop_seq_2,
+    prop_seq_3,
+    prop_seq_4,
+    prop_alt_1,
+    prop_alt_2,
+    prop_alt_3,
+    prop_alt_4,
+    prop_alt_seq_1,
+    prop_alt_seq_2,
+    prop_alt_seq_3,
+    prop_alt_seq_4,
+    prop_filt_alt_1,
+    prop_filt_alt_2,
+    prop_bchoice_seq_1
 )
 where
 
@@ -29,6 +31,11 @@ import Test.QuickCheck
 -- k,h      Continuation        a -> MParser a
 -- f        Function/Predicate  a -> b, a -> Bool
 
+
+-- prop0' g v = forAll g $ \s -> () == (parse (return c) s)
+
+
+
 -- Property 1:
 --   For any string s of type g, if s is non-empty, parsing one character of s results in a pair with the character and the remainder, and no other options.
 prop1 g = forAll g $ \s -> s /= "" ==> parse oneChar s == [(head s, tail s)]
@@ -36,90 +43,105 @@ prop1 g = forAll g $ \s -> s /= "" ==> parse oneChar s == [(head s, tail s)]
 
 -- Sequence laws
 
--- Property 2:
+-- Sequencing Property 1:
+--   'parse' is homomorphic for sequencing.
+--   Parsing a string s with a parser sequence (p >>= k) is the same as parsing s with parser p
+--   yielding output a and remainder y and then parsing the remainder y with the parser (k a)
+prop_seq_1 g p k = forAll g $ \s -> (parse p s >>= \(a,y) -> parse (k a) y) == (parse (p >>= k) s)
+
+-- Sequencing Property 2:
 --   The result of first applying the parser that on any input s returns [(a,s)]
 --   and then passing this to a the continuation k, is the same as invoking k on a.
--- prop2 g a k = forAll g $ \s -> parse (do { b <- return a; k b }) s == parse (k a) s
--- prop2 g a k = forAll g $ \s -> parse (return a >>= k) s == parse (k a) s
-prop2 g a k = forAll g $ (return a >>= k) `parserEq` k a
+-- prop_seq_2 g a k = forAll g $ \s -> parse (do { b <- return a; k b }) s == parse (k a) s
+-- prop_seq_2 g a k = forAll g $ \s -> parse (return a >>= k) s == parse (k a) s
+prop_seq_2 g a k = forAll g $ (return a >>= k) `parserEq` k a
 
--- Property 3:
+-- Sequencing Property 3:
 --   The result of first applying a parser p and then returning its result
 --   is the same as just applying the parser p.
--- prop3 g p = forAll g $ \s -> parse (do { a <- p; return a }) s == parse p s
--- prop3 g p = forAll g $ \s -> parse (p >>= return) s == parse p s
--- prop3 g p = forAll g $ \s -> parse (p >>= \a -> return a) s == parse p s
--- prop3 g p = forAll g $ \s -> p >>= \a -> return a `parserEq` p
-prop3 g p = forAll g $ (p >>= return) `parserEq` p
+-- prop_seq_3 g p = forAll g $ \s -> parse (do { a <- p; return a }) s == parse p s
+-- prop_seq_3 g p = forAll g $ \s -> parse (p >>= return) s == parse p s
+-- prop_seq_3 g p = forAll g $ \s -> parse (p >>= \a -> return a) s == parse p s
+-- prop_seq_3 g p = forAll g $ \s -> p >>= \a -> return a `parserEq` p
+prop_seq_3 g p = forAll g $ (p >>= return) `parserEq` p
 
--- Property 4:
+-- Sequencing Property 4:
 --   Sequencing is associative.
-prop4 g p k h =
+prop_seq_4 g p k h =
     forAll g $
         do { a <- p; do { b <- k a; h b }} `parserEq` do { b <- do { a <- p; k a }; h b }
--- prop4 g p k h =
+-- prop_seq_4 g p k h =
 --     forAll g $
 --         (p >>= \a -> (k a >>= \b -> h b)) `parserEq` ((p >>= \a -> k a) >>= \b -> h b)
 
 
 -- Alternation laws
 
--- Property 5:
+-- Alternation Property 1:
+--   'parse' is homomorphic for alternation.
+--   Parsing a string s with the parser (p <|> q) is the same as the alternative between
+--   parsing s with p and parsing s with q.
+prop_alt_1 g p q = forAll g $ \s -> ((parse p s) <|> (parse q s)) == (parse (p <|> q) s)
+
+-- Alternation Property 2:
 --   The parser that always fails is the left identity for alternation.
--- prop5 g p = forAll g $ \s -> parse (empty <|> p) s == parse p s
-prop5 g p = forAll g $ (empty <|> p) `parserEq` p
+-- prop_alt_2 g p = forAll g $ \s -> parse (empty <|> p) s == parse p s
+prop_alt_2 g p = forAll g $ (empty <|> p) `parserEq` p
 
--- Property 6:
+-- Alternation Property 3:
 --   The parser that always fails is the right identity for alternation.
--- prop6 g p = forAll g $ \s -> parse (p <|> empty) s == parse p s
-prop6 g p = forAll g $ (p <|> empty) `parserEq` p
+-- prop_alt_3 g p = forAll g $ \s -> parse (p <|> empty) s == parse p s
+prop_alt_3 g p = forAll g $ (p <|> empty) `parserEq` p
 
--- Property 7:
+-- Alternation Property 4:
 --   Alternation is associative.
-prop7 g p q r = forAll g $ (p <|> (q <|> r)) `parserEq` ((p <|> q) <|> r)
+prop_alt_4 g p q r = forAll g $ (p <|> (q <|> r)) `parserEq` ((p <|> q) <|> r)
 
--- Property 8:
+
+-- Laws linking sequencing and alternation
+
+-- Seq/Alt Property 1:
 --   The identity of alternation is a zero of sequencing on the left.
 --   Sequencing preserves the identity of alternation.
-prop8 g k = forAll g $ (empty >>= k) `parserEq` empty
+prop_alt_seq_1 g k = forAll g $ (empty >>= k) `parserEq` empty
 
--- Property 9:
+-- Seq/Alt Property 2:
 --   The identity of alternation is a zero of sequencing on the right.
--- prop9 g p = forAll g $ (p >>= \a -> empty) `parserEq` empty
-prop9 g p = forAll g $ (p >>= discardAndThenEmpty) `parserEq` empty
+-- prop_alt_seq_2 g p = forAll g $ (p >>= \a -> empty) `parserEq` empty
+prop_alt_seq_2 g p = forAll g $ (p >>= discardAndThenEmpty) `parserEq` empty
     where
         discardAndThenEmpty :: Eq a => a -> MParser a
         discardAndThenEmpty a = empty
--- prop9 g p = forAll g $ (p >>= \(a :: Eq a => a) -> empty) `parserEq` empty
--- prop9 :: Eq b => Gen State -> MParser b -> Property
--- prop9 g p = forAll g $ (p >>= \a -> (empty :: Eq a => MParser a)) `parserEq` empty
--- prop9 g p = forAll g $ (p >>= \a -> empty) `parserEq` (empty :: Eq a => MParser a)
--- prop9 g p = forAll g $ (p >>= ((\a -> empty) :: Eq a => a -> MParser a)) `parserEq` empty
--- prop9 g p = forAll g $ do { a <- p; empty } `parserEq` empty
+-- prop_alt_seq_2 g p = forAll g $ (p >>= \(a :: Eq a => a) -> empty) `parserEq` empty
+-- prop_alt_seq_2 :: Eq b => Gen State -> MParser b -> Property
+-- prop_alt_seq_2 g p = forAll g $ (p >>= \a -> (empty :: Eq a => MParser a)) `parserEq` empty
+-- prop_alt_seq_2 g p = forAll g $ (p >>= \a -> empty) `parserEq` (empty :: Eq a => MParser a)
+-- prop_alt_seq_2 g p = forAll g $ (p >>= ((\a -> empty) :: Eq a => a -> MParser a)) `parserEq` empty
+-- prop_alt_seq_2 g p = forAll g $ do { a <- p; empty } `parserEq` empty
 
--- Property 10:
+-- Seq/Alt Property 3:
 --   Sequencing distributes leftward over alternation.
-prop10 g p q k = forAll g $ ((p <|> q) >>= k) `parserEq` ((p >>= k) <|> (q >>= k))
+prop_alt_seq_3 g p q k = forAll g $ ((p <|> q) >>= k) `parserEq` ((p >>= k) <|> (q >>= k))
 
--- Property 11:
+-- Seq/Alt Property 4:
 --   Sequencing distributes rightward over alternation if the parsers are unambiguous.
-prop11 g p k h = forAll g $ (p >>= \a -> ((k a) <|> (h a))) `parserEq` ((p >>= k) <|> (p >>= h))
+prop_alt_seq_4 g p k h = forAll g $ (p >>= \a -> ((k a) <|> (h a))) `parserEq` ((p >>= k) <|> (p >>= h))
 
 
 -- Filtering laws
 
--- Property 12:
+-- Filtering Property 1:
 --   The identity of alternation is a zero of filtering on the left.
 --   Filtering preserves the identity of alternation.
-prop12 g f = forAll g $ (empty |> f) `parserEq` empty
+prop_filt_alt_1 g f = forAll g $ (empty |> f) `parserEq` empty
 
--- Property 13:
+-- Filtering Property 2:
 --   Filtering distributes leftward over alternation.
-prop13 g p q f = forAll g $ ((p <|> q) |> f) `parserEq` ((p |> f) <|> (q |> f))
+prop_filt_alt_2 g p q f = forAll g $ ((p <|> q) |> f) `parserEq` ((p |> f) <|> (q |> f))
 
 
 -- Biased choice laws
 
--- Property 14:
+-- Biased choice Property 1:
 --   Sequencing distributes rightward over biased choice if the parsers are unambiguous.
-prop14 g p k h = forAll g $ ((p >>= k) </> (p >>= h)) `parserEq` (p >>= \a -> ((k a) </> (h a)))
+prop_bchoice_seq_1 g p k h = forAll g $ ((p >>= k) </> (p >>= h)) `parserEq` (p >>= \a -> ((k a) </> (h a)))

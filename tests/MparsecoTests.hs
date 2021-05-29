@@ -20,44 +20,50 @@ generators =
 
 prop1_tests = [ testProperty ("prop1 " ++ label) $ prop1 g | (label, g) <- generators ]
 
-prop2_tests =
-    [ testProperty ("prop2" ++ label ++ " 'a' literalChar") $ prop2 g 'a' literalChar | (label, g) <- generators ]
+prop_seq_1_tests =
+    [ testProperty ("prop_seq_1 " ++ label ++ " oneChar literalChar") $ prop_seq_1 g oneChar literalChar | (label, g) <- generators ]
 
-prop3_tests =
-    [ testProperty ("prop3" ++ label ++ " oneChar") $ prop3 g oneChar | (label, g) <- generators ]
+prop_seq_2_tests =
+    [ testProperty ("prop_seq_2 " ++ label ++ " 'a' literalChar") $ prop_seq_2 g 'a' literalChar | (label, g) <- generators ]
 
-prop4_tests =
-    [ testProperty ("prop4" ++ label ++ " oneChar literalChar literalChar") $ prop4 g oneChar literalChar literalChar | (label, g) <- generators ]
+prop_seq_3_tests =
+    [ testProperty ("prop_seq_3 " ++ label ++ " oneChar") $ prop_seq_3 g oneChar | (label, g) <- generators ]
 
-prop5_tests =
-    [ testProperty ("prop5 " ++ label ++ " oneChar") $ prop5 g oneChar | (label, g) <- generators ]
+prop_seq_4_tests =
+    [ testProperty ("prop_seq_4 " ++ label ++ " oneChar literalChar literalChar") $ prop_seq_4 g oneChar literalChar literalChar | (label, g) <- generators ]
 
-prop6_tests =
-    [ testProperty ("prop6 " ++ label ++ " oneChar") $ prop6 g oneChar | (label, g) <- generators ]
+prop_alt_1_tests =
+    [ testProperty ("prop_alt_1 " ++ label ++ " oneChar oneChar") $ prop_alt_1 g oneChar oneChar | (label, g) <- generators ]
 
-prop7_tests =
-    [ testProperty ("prop7 " ++ label ++ " oneChar oneChar oneChar") $ prop7 g oneChar oneChar oneChar | (label, g) <- generators ]
+prop_alt_2_tests =
+    [ testProperty ("prop_alt_2 " ++ label ++ " oneChar") $ prop_alt_2 g oneChar | (label, g) <- generators ]
 
-prop8_tests =
-    [ testProperty ("prop8 " ++ label ++ " literalChar") $ prop8 g literalChar | (label, g) <- generators ]
+prop_alt_3_tests =
+    [ testProperty ("prop_alt_3 " ++ label ++ " oneChar") $ prop_alt_3 g oneChar | (label, g) <- generators ]
 
-prop9_tests =
-    [ testProperty ("prop9 " ++ label ++ " oneChar") $ prop9 g oneChar | (label, g) <- generators ]
+prop_alt_4_tests =
+    [ testProperty ("prop_alt_4 " ++ label ++ " oneChar oneChar oneChar") $ prop_alt_4 g oneChar oneChar oneChar | (label, g) <- generators ]
 
-prop10_tests =
-    [ testProperty ("prop10" ++ label ++ " oneChar oneChar literalChar") $ prop10 g oneChar oneChar literalChar | (label, g) <- generators ]
+prop_alt_seq_1_tests =
+    [ testProperty ("prop_alt_seq_1 " ++ label ++ " literalChar") $ prop_alt_seq_1 g literalChar | (label, g) <- generators ]
 
-prop11_tests =
-    [ testProperty ("prop11" ++ label ++ " oneChar literalChar literalChar") $ prop11 g oneChar literalChar literalChar | (label, g) <- generators ]
+prop_alt_seq_2_tests =
+    [ testProperty ("prop_alt_seq_2 " ++ label ++ " oneChar") $ prop_alt_seq_2 g oneChar | (label, g) <- generators ]
 
-prop12_tests =
-    [ testProperty ("prop12 " ++ label ++ " isLetter") $ prop12 g isLetter | (label, g) <- generators ]
+prop_alt_seq_3_tests =
+    [ testProperty ("prop_alt_seq_3 " ++ label ++ " oneChar oneChar literalChar") $ prop_alt_seq_3 g oneChar oneChar literalChar | (label, g) <- generators ]
 
-prop13_tests =
-    [ testProperty ("prop13" ++ label ++ " oneChar oneChar isLetter") $ prop13 g oneChar oneChar isLetter | (label, g) <- generators ]
+prop_alt_seq_4_tests =
+    [ testProperty ("prop_alt_seq_4 " ++ label ++ " oneChar literalChar literalChar") $ prop_alt_seq_4 g oneChar literalChar literalChar | (label, g) <- generators ]
 
-prop14_tests =
-    [ testProperty ("prop14" ++ label ++ " oneChar literalChar literalChar") $ prop14 g oneChar literalChar literalChar | (label, g) <- generators ]
+prop_filt_alt_1_tests =
+    [ testProperty ("prop_filt_alt_1 " ++ label ++ " isLetter") $ prop_filt_alt_1 g isLetter | (label, g) <- generators ]
+
+prop_filt_alt_2_tests =
+    [ testProperty ("prop_filt_alt_2 " ++ label ++ " oneChar oneChar isLetter") $ prop_filt_alt_2 g oneChar oneChar isLetter | (label, g) <- generators ]
+
+prop_bchoice_seq_1_tests =
+    [ testProperty ("prop_bchoice_seq_1" ++ label ++ " oneChar literalChar literalChar") $ prop_bchoice_seq_1 g oneChar literalChar literalChar | (label, g) <- generators ]
 
 
 tests :: IO [Test]
@@ -65,16 +71,18 @@ tests = do
     -- printSamples
     return $
         prop1_tests ++
-        prop2_tests ++
-        prop3_tests ++
-        prop4_tests ++
-        prop5_tests ++
-        prop6_tests ++
-        prop7_tests ++
-        prop8_tests ++
-        prop9_tests ++
-        prop10_tests ++
-        prop11_tests ++
-        prop12_tests ++
-        prop13_tests ++
-        prop14_tests
+        prop_seq_1_tests ++
+        prop_seq_2_tests ++
+        prop_seq_3_tests ++
+        prop_seq_4_tests ++
+        prop_alt_1_tests ++
+        prop_alt_2_tests ++
+        prop_alt_3_tests ++
+        prop_alt_4_tests ++
+        prop_alt_seq_1_tests ++
+        prop_alt_seq_2_tests ++
+        prop_alt_seq_3_tests ++
+        prop_alt_seq_4_tests ++
+        prop_filt_alt_1_tests ++
+        prop_filt_alt_2_tests ++
+        prop_bchoice_seq_1_tests
