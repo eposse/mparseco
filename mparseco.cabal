@@ -33,7 +33,7 @@ test-suite mparseco-test
   type:                detailed-0.9
   test-module:         MparsecoTests
   other-modules:
-    MparsecoTests.BasicProperties,
+    MparsecoTests.Properties,
     MparsecoTests.Generators,
     Mparseco,
     Mparseco.BasicParsers,

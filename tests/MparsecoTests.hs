@@ -2,7 +2,7 @@ module MparsecoTests (tests) where
 
 import Mparseco
 import MparsecoTests.Generators
-import MparsecoTests.BasicProperties
+import MparsecoTests.Properties
 import Distribution.TestSuite.QuickCheck
 import Data.Char
 

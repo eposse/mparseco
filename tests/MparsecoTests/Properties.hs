@@ -1,5 +1,5 @@
 {-# LANGUAGE ScopedTypeVariables, RankNTypes #-}
-module MparsecoTests.BasicProperties
+module MparsecoTests.Properties
 (
     prop1,
     prop_seq_1,
