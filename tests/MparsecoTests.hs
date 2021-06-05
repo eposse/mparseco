@@ -21,7 +21,8 @@ generators =
 prop1_tests = [ testProperty ("prop1 " ++ label) $ prop1 g | (label, g) <- generators ]
 
 prop_seq_1_tests =
-    [ testProperty ("prop_seq_1 " ++ label ++ " oneChar literalChar") $ prop_seq_1 g oneChar literalChar | (label, g) <- generators ]
+    [ testProperty ("prop_seq_1 " ++ label ++ " oneChar literalChar") $ prop_seq_1 g oneChar literalChar | (label, g) <- generators ] ++
+    [ testProperty ("prop_seq_1 digitString naturalNumbers (\n -> naturalNumber >>= \\m -> return (n,m))") $ prop_seq_1 digitString naturalNumbers (\n -> naturalNumber >>= \m -> return (n,m)) ]
 
 prop_seq_2_tests =
     [ testProperty ("prop_seq_2 " ++ label ++ " 'a' literalChar") $ prop_seq_2 g 'a' literalChar | (label, g) <- generators ]
@@ -33,7 +34,8 @@ prop_seq_4_tests =
     [ testProperty ("prop_seq_4 " ++ label ++ " oneChar literalChar literalChar") $ prop_seq_4 g oneChar literalChar literalChar | (label, g) <- generators ]
 
 prop_alt_1_tests =
-    [ testProperty ("prop_alt_1 " ++ label ++ " oneChar oneChar") $ prop_alt_1 g oneChar oneChar | (label, g) <- generators ]
+    [ testProperty ("prop_alt_1 " ++ label ++ " oneChar oneChar") $ prop_alt_1 g oneChar oneChar | (label, g) <- generators ] ++
+    [ testProperty ("prop_alt_1 alphaNumString naturalNumberLiterals identifiers") $ prop_alt_1 alphaNumString naturalNumberLiterals identifier]
 
 prop_alt_2_tests =
     [ testProperty ("prop_alt_2 " ++ label ++ " oneChar") $ prop_alt_2 g oneChar | (label, g) <- generators ]
