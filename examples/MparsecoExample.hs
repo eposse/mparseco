@@ -85,6 +85,53 @@ r31 = parse (next stringToken) "  \"qwerty\"zxc"
 
 r32 = parse (next stringToken) "  \"qwerty\"\"zxc"
 
+r33 = parse (next stringToken) "\"qwerty\"zxc"
+
+r34 = tokenize ""
+
+r35 = tokenize "1"
+
+r36 = tokenize "1a"
+
+r37 = parse basicToken ""
+
+r38 = parse basicToken "true"
+
+r39 = parse basicToken "false"
+
+r40 = parse basicToken "1"
+
+r41 = parse basicToken "-1"
+
+r42 = parse basicToken "'z'"
+
+r43 = parse basicToken "\"abc\""
+
+r44 = parse basicToken "var"
+
+r45 = parse (token ["var","fal","null"]) ""
+
+r46 = parse (token ["var","fal","null"]) "true"
+
+r47 = parse (token ["var","fal","null"]) "false"
+
+r48 = parse (token ["var","fal","null"]) "1"
+
+r49 = parse (token ["var","fal","null"]) "-1"
+
+r50 = parse (token ["var","fal","null"]) "'z'"
+
+r51 = parse (token ["var","fal","null"]) "\"abc\""
+
+r52 = parse (token ["var","fal","null"]) "var"
+
+r53 = parse (token ["var","fal","null"]) "variable"
+
+r54 = parse (token ["var","fal","null"]) "fal"
+
+r55 = parse (token ["var","fal","null"]) "null"
+
+
 
 
 main = do
