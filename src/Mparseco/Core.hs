@@ -9,7 +9,8 @@ module Mparseco.Core
     (|>),
     (</>),
     allZeroOrMore,
-    maxZeroOrMore
+    maxZeroOrMore,
+    while
 )
 where
 
@@ -69,11 +70,21 @@ p1 </> p2 = MParser (\s -> let left = parse p1 s in if left /= [] then left else
 
 -- | Greedy parser iteration
 maxZeroOrMore :: Eq a => MParser a -> MParser [a]
+-- maxZeroOrMore p =
+    --     (p >>= \a -> maxZeroOrMore p >>= \x -> return (a:x))
+    -- </>
+    --     return []
 maxZeroOrMore p =
-        (p >>= \a -> maxZeroOrMore p >>= \x -> return (a:x))
+        do { a <- p; x <- maxZeroOrMore p; return (a:x) }
     </>
         return []
--- maxZeroOrMore p =
---         do { a <- p; x <- maxZeroOrMore p; return (a:x) }
---     </>
---         return []
+
+-- | Greedy parser iteration with continuation condition
+while :: Eq a => MParser a -> (a -> Bool) -> MParser [a]
+while p f =
+        do
+            a <- p |> f
+            x <- while p f
+            return (a:x)
+    </>
+        return []

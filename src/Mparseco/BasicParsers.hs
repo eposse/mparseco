@@ -9,7 +9,9 @@ module Mparseco.BasicParsers
     naturalNumbers,
     naturalNumber,
     identifiers,
-    identifier
+    identifier,
+    literal,
+    spaces
 )
 where
 
@@ -81,3 +83,10 @@ identifier = do
     l <- letter
     ls <- maxZeroOrMore (letter <|> digitChar <|> (literalChar '_'))
     return (l:ls)
+
+literal :: String -> MParser String
+literal "" = return ""
+literal (c:cs) = do { a <- literalChar c ; x <- literal cs; return (a:x) }
+
+spaces :: MParser String
+spaces = maxZeroOrMore (oneChar |> isSpace)
