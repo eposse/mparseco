@@ -109,30 +109,35 @@ r43 = parse basicToken "\"abc\""
 
 r44 = parse basicToken "var"
 
-r45 = parse (token ["var","fal","null"]) ""
+r45 = parse (token ["var","fal","null"] []) ""
 
-r46 = parse (token ["var","fal","null"]) "true"
+r46 = parse (token ["var","fal","null"] []) "true"
 
-r47 = parse (token ["var","fal","null"]) "false"
+r47 = parse (token ["var","fal","null"] []) "false"
 
-r48 = parse (token ["var","fal","null"]) "1"
+r48 = parse (token ["var","fal","null"] []) "1"
 
-r49 = parse (token ["var","fal","null"]) "-1"
+r49 = parse (token ["var","fal","null"] []) "-1"
 
-r50 = parse (token ["var","fal","null"]) "'z'"
+r50 = parse (token ["var","fal","null"] []) "'z'"
 
-r51 = parse (token ["var","fal","null"]) "\"abc\""
+r51 = parse (token ["var","fal","null"] []) "\"abc\""
 
-r52 = parse (token ["var","fal","null"]) "var"
+r52 = parse (token ["var","fal","null"] []) "var"
 
-r53 = parse (token ["var","fal","null"]) "variable"
+r53 = parse (token ["var","fal","null"] []) "variable"
 
-r54 = parse (token ["var","fal","null"]) "fal"
+r54 = parse (token ["var","fal","null"] []) "fal"
 
-r55 = parse (token ["var","fal","null"]) "null"
+r55 = parse (token ["var","fal","null"] []) "null"
 
+r56 = tokenize' ["var","oof"] ["="] "var iable = oofs 42"
 
+r57 = tokenize' ["var","oof"] ["="] "variable = oofs 42"
 
+r58 = tokenize' ["var","oof"] ["="] "variable = oof 42"
+
+r59 = tokenize' ["var","oof"] ["="] "var iable = oof 42"
 
 main = do
     putStrLn "Hello Mparseco"

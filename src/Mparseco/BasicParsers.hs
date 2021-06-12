@@ -89,4 +89,4 @@ literal "" = return ""
 literal (c:cs) = do { a <- literalChar c ; x <- literal cs; return (a:x) }
 
 spaces :: MParser String
-spaces = maxZeroOrMore (oneChar |> isSpace)
+spaces = maxOneOrMore (oneChar |> isSpace)

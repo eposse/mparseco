@@ -9,7 +9,9 @@ module Mparseco.Core
     (|>),
     (</>),
     allZeroOrMore,
+    allOneOrMore,
     maxZeroOrMore,
+    maxOneOrMore,
     while,
     oneof
 )
@@ -57,13 +59,16 @@ p |> f = p >>= \a -> if f a then return a else empty
 -- | Parser iteration
 allZeroOrMore :: MParser a -> MParser [a]
 allZeroOrMore p =
-        (p >>= \a -> allZeroOrMore p >>= \x -> return (a:x))
+        do { a <- p; as <- allZeroOrMore p; return (a:as) }
     <|>
         return []
--- allZeroOrMore p =
---         do { a <- p; x <- allZeroOrMore p; return (a:x) }
---     <|>
---         return []
+
+allOneOrMore :: MParser a -> MParser [a]
+allOneOrMore p =
+    do
+        a <- p
+        as <- allZeroOrMore p
+        return (a:as)
 
 -- | Biased choice
 (</>) :: Eq a => MParser a -> MParser a -> MParser a
@@ -71,14 +76,17 @@ p1 </> p2 = MParser (\s -> let left = parse p1 s in if left /= [] then left else
 
 -- | Greedy parser iteration
 maxZeroOrMore :: Eq a => MParser a -> MParser [a]
--- maxZeroOrMore p =
-    --     (p >>= \a -> maxZeroOrMore p >>= \x -> return (a:x))
-    -- </>
-    --     return []
 maxZeroOrMore p =
-        do { a <- p; x <- maxZeroOrMore p; return (a:x) }
+        do { a <- p; as <- maxZeroOrMore p; return (a:as) }
     </>
         return []
+
+maxOneOrMore :: Eq a => MParser a -> MParser [a]
+maxOneOrMore p =
+    do
+        a <- p
+        as <- maxZeroOrMore p
+        return (a:as)
 
 -- | Greedy parser iteration with continuation condition
 while :: Eq a => MParser a -> (a -> Bool) -> MParser [a]

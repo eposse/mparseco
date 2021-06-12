@@ -15,7 +15,8 @@ module Mparseco.Tokenizer
     intToken,
     stringToken,
     identifierToken,
-    literalToken,
+    keywordToken,
+    operatorToken,
     lparToken,
     rparToken
 )
@@ -29,43 +30,49 @@ data Token =
     | TChar Char
     | TInt Int
     | TString String
-    | TLiteral String
+    | TKeyword String
     | TIdentifier String
     | TLPar
     | TRPar
+    | TOperator String
     deriving (Eq, Show)
 
 next :: MParser Token -> MParser Token
-next token = do
-    spaces
-    token
+next token =
+    do
+        spaces
+        token
+    </>
+        token
 
 nextToken :: MParser Token
 nextToken = next basicToken
 
-nextToken' :: [String] -> MParser Token
-nextToken' kwds = next $ token kwds
+nextToken' :: [String] -> [String] -> MParser Token
+nextToken' kwds ops = next $ token kwds ops
 
 basicToken :: MParser Token
 basicToken = oneof [boolToken, charToken, intToken, stringToken, identifierToken]
 
-token :: [String] -> MParser Token
-token kwds = do
-    (oneof [literalToken k | k <- kwds])
+token :: [String] -> [String] -> MParser Token
+token kwds ops = do
+    (oneof [keywordToken k | k <- kwds])
+    <|>
+    (oneof [operatorToken op | op <- ops])
     <|>
     basicToken
 
 tokenizer :: MParser [Token]
 tokenizer = maxZeroOrMore nextToken
 
-tokenizer' :: [String] -> MParser [Token]
-tokenizer' kwds = maxZeroOrMore $ nextToken' kwds
+tokenizer' :: [String] -> [String] -> MParser [Token]
+tokenizer' kwds ops = maxZeroOrMore $ nextToken' kwds ops
 
 tokenize :: String -> [([Token], State)]
 tokenize = parse tokenizer
 
-tokenize' :: [String] -> String -> [([Token], State)]
-tokenize' kwds = parse $ tokenizer' kwds
+tokenize' :: [String] -> [String] -> String -> [([Token], State)]
+tokenize' kwds ops = parse $ tokenizer' kwds ops
 
 boolToken :: MParser Token
 boolToken =
@@ -100,10 +107,17 @@ identifierToken = do
     name <- identifier
     return $ TIdentifier name
 
-literalToken :: String -> MParser Token
-literalToken s = do
+keywordToken :: String -> MParser Token
+keywordToken s = do
     lit <- literal s
-    return $ TLiteral lit
+    spaces
+    return $ TKeyword lit
+
+operatorToken :: String -> MParser Token
+operatorToken s = do
+    lit <- literal s
+    spaces
+    return $ TOperator lit
 
 lparToken :: MParser Token
 lparToken = do
