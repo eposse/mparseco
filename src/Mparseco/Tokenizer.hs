@@ -2,14 +2,18 @@ module Mparseco.Tokenizer
 (
     Token(..),
     next,
+    nextBasicToken,
     nextToken,
-    nextToken',
+    nextPossibleTokens,
     basicToken,
     token,
+    possibleTokens,
+    basicTokenizer,
     tokenizer,
-    tokenizer',
+    nonDetTokenizer,
+    basicTokenize,
     tokenize,
-    tokenize',
+    nonDetTokenize,
     boolToken,
     charToken,
     intToken,
@@ -45,34 +49,51 @@ next token =
     </>
         token
 
-nextToken :: MParser Token
-nextToken = next basicToken
+nextBasicToken:: MParser Token
+nextBasicToken= next basicToken
 
-nextToken' :: [String] -> [String] -> MParser Token
-nextToken' kwds ops = next $ token kwds ops
+nextToken :: [String] -> [String] -> MParser Token
+nextToken kwds ops = next $ token kwds ops
+
+nextPossibleTokens :: [String] -> [String] -> MParser Token
+nextPossibleTokens kwds ops = next $ possibleTokens kwds ops
 
 basicToken :: MParser Token
-basicToken = oneof [boolToken, charToken, intToken, stringToken, identifierToken]
+basicToken = oneof [boolToken, charToken, intToken, stringToken, identifierToken, lparToken, rparToken]
 
 token :: [String] -> [String] -> MParser Token
 token kwds ops = do
+    (oneof [keywordToken k | k <- kwds])
+    </>
+    (oneof [operatorToken op | op <- ops])
+    </>
+    basicToken
+
+possibleTokens :: [String] -> [String] -> MParser Token
+possibleTokens kwds ops = do
     (oneof [keywordToken k | k <- kwds])
     <|>
     (oneof [operatorToken op | op <- ops])
     <|>
     basicToken
 
-tokenizer :: MParser [Token]
-tokenizer = maxZeroOrMore nextToken
+basicTokenizer :: MParser [Token]
+basicTokenizer = maxZeroOrMore nextBasicToken
 
-tokenizer' :: [String] -> [String] -> MParser [Token]
-tokenizer' kwds ops = maxZeroOrMore $ nextToken' kwds ops
+tokenizer :: [String] -> [String] -> MParser [Token]
+tokenizer kwds ops = maxZeroOrMore $ nextToken kwds ops
 
-tokenize :: String -> [([Token], State)]
-tokenize = parse tokenizer
+nonDetTokenizer :: [String] -> [String] -> MParser [Token]
+nonDetTokenizer kwds ops = maxZeroOrMore $ nextPossibleTokens kwds ops
 
-tokenize' :: [String] -> [String] -> String -> [([Token], State)]
-tokenize' kwds ops = parse $ tokenizer' kwds ops
+basicTokenize :: String -> [([Token], State)]
+basicTokenize = parse basicTokenizer
+
+tokenize :: [String] -> [String] -> String -> [([Token], State)]
+tokenize kwds ops = parse $ tokenizer kwds ops
+
+nonDetTokenize :: [String] -> [String] -> String -> [([Token], State)]
+nonDetTokenize kwds ops = parse $ nonDetTokenizer kwds ops
 
 boolToken :: MParser Token
 boolToken =

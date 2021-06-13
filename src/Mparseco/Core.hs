@@ -13,6 +13,7 @@ module Mparseco.Core
     maxZeroOrMore,
     maxOneOrMore,
     while,
+    anyof,
     oneof
 )
 where
@@ -99,7 +100,11 @@ while p f =
         return []
 
 -- | Parser selection
-oneof :: [MParser a] -> MParser a
+anyof :: [MParser a] -> MParser a
+anyof [] = empty
+anyof (p:ps) = p <|> (anyof ps)
+-- anyof = foldl (<|>) empty
+
+oneof :: Eq a => [MParser a] -> MParser a
 oneof [] = empty
-oneof (p:ps) = p <|> (oneof ps)
--- oneof = foldl (<|>) empty
+oneof (p:ps) = p </> (oneof ps)

@@ -87,11 +87,11 @@ r32 = parse (next stringToken) "  \"qwerty\"\"zxc"
 
 r33 = parse (next stringToken) "\"qwerty\"zxc"
 
-r34 = tokenize ""
+r34 = basicTokenize ""
 
-r35 = tokenize "1"
+r35 = basicTokenize "1"
 
-r36 = tokenize "1a"
+r36 = basicTokenize "1a"
 
 r37 = parse basicToken ""
 
@@ -131,13 +131,22 @@ r54 = parse (token ["var","fal","null"] []) "fal"
 
 r55 = parse (token ["var","fal","null"] []) "null"
 
-r56 = tokenize' ["var","oof"] ["="] "var iable = oofs 42"
+r56 = tokenize ["var","oof"] ["="] "var iable = oofs 42"
 
-r57 = tokenize' ["var","oof"] ["="] "variable = oofs 42"
+r57 = tokenize ["var","oof"] ["="] "variable = oofs 42"
 
-r58 = tokenize' ["var","oof"] ["="] "variable = oof 42"
+r58 = tokenize ["var","oof"] ["="] "variable = oof 42"
 
-r59 = tokenize' ["var","oof"] ["="] "var iable = oof 42"
+r59 = tokenize ["var","oof"] ["="] "var iable = oof 42"
+
+r60 = nonDetTokenize ["var","oof"] ["="] "var iable = oofs 42"
+
+r61 = nonDetTokenize ["var","oof"] ["="] "variable = oofs 42"
+
+r62 = nonDetTokenize ["var","oof"] ["="] "variable = oof 42"
+
+r63 = nonDetTokenize ["var","oof"] ["="] "var iable = oof 42"
+
 
 main = do
     putStrLn "Hello Mparseco"
