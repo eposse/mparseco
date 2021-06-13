@@ -110,7 +110,7 @@ prop_alt_seq_1 g k = forAll g $ (empty >>= k) `parserEq` empty
 -- prop_alt_seq_2 g p = forAll g $ (p >>= \a -> empty) `parserEq` empty
 prop_alt_seq_2 g p = forAll g $ (p >>= discardAndThenEmpty) `parserEq` empty
     where
-        discardAndThenEmpty :: Eq a => a -> MParser a
+        discardAndThenEmpty :: (Eq a, Eq b) => b -> MParser a b
         discardAndThenEmpty a = empty
 -- prop_alt_seq_2 g p = forAll g $ (p >>= \(a :: Eq a => a) -> empty) `parserEq` empty
 -- prop_alt_seq_2 :: Eq b => Gen State -> MParser b -> Property

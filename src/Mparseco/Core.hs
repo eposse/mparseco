@@ -1,7 +1,7 @@
 module Mparseco.Core
 (
-    State,
     MParser (..),
+    StringParser (..),
     parse,
     parserEq,
     empty,
@@ -22,49 +22,51 @@ import Control.Applicative (Applicative(..),Alternative(..))
 import Control.Monad       (MonadPlus(..), liftM, ap)
 import Debug.Trace
 
-type State = String
-newtype MParser a = MParser (State -> [(a,State)])
+-- | MParser a b is the type of parsers that receive input of type a and produce output of type b
+newtype MParser a b = MParser (a -> [(b,a)])
 
-instance Show (MParser a) where
+type StringParser = MParser String
+
+instance Show (MParser a b) where
     show (MParser f) = "MParser <...>"
 
-parse :: MParser a -> State -> [(a,State)]
+parse :: MParser a b -> a -> [(b,a)]
 -- parse p s | trace ("parse (" ++ show p ++ ") " ++ show s) False = undefined
 parse (MParser f) s = f s
 
-parserEq :: Eq a => MParser a -> MParser a -> State -> Bool
+parserEq :: (Eq a, Eq b) => MParser a b -> MParser a b -> a -> Bool
 parserEq p q = \s -> parse p s == parse q s
 
-instance Functor MParser where
+instance Functor (MParser a) where
     fmap = liftM
 
-instance Applicative MParser where
+instance Applicative (MParser a) where
     pure  = return
     (<*>) = ap
 
 -- | Parser sequencing
-instance Monad MParser where
+instance Monad (MParser a) where
     return c = MParser (\s -> [(c,s)])
     p >>= k  = MParser (\s -> [(b,z) | (a,y) <- parse p s, (b,z) <- parse (k a) y])
 
 -- | Parser alternation
-instance Alternative MParser where
+instance Alternative (MParser a) where
     empty = MParser (\s -> [])
     -- p1 <|> p2 | trace ("(<|>) (" ++ show p1 ++ ") (" ++ show p2 ++ ")") False = undefined
     p1 <|> p2 = MParser (\s -> (parse p1 s) ++ (parse p2 s))
 
 -- | Parser filetering
-(|>) :: MParser a -> (a -> Bool) -> MParser a
+(|>) :: MParser a b -> (b -> Bool) -> MParser a b
 p |> f = p >>= \a -> if f a then return a else empty
 
 -- | Parser iteration
-allZeroOrMore :: MParser a -> MParser [a]
+allZeroOrMore :: MParser a b -> MParser a [b]
 allZeroOrMore p =
         do { a <- p; as <- allZeroOrMore p; return (a:as) }
     <|>
         return []
 
-allOneOrMore :: MParser a -> MParser [a]
+allOneOrMore :: MParser a b -> MParser a [b]
 allOneOrMore p =
     do
         a <- p
@@ -72,17 +74,17 @@ allOneOrMore p =
         return (a:as)
 
 -- | Biased choice
-(</>) :: Eq a => MParser a -> MParser a -> MParser a
+(</>) :: (Eq a, Eq b) => MParser a b -> MParser a b -> MParser a b
 p1 </> p2 = MParser (\s -> let left = parse p1 s in if left /= [] then left else parse p2 s)
 
 -- | Greedy parser iteration
-maxZeroOrMore :: Eq a => MParser a -> MParser [a]
+maxZeroOrMore :: (Eq a, Eq b) => MParser a b -> MParser a [b]
 maxZeroOrMore p =
         do { a <- p; as <- maxZeroOrMore p; return (a:as) }
     </>
         return []
 
-maxOneOrMore :: Eq a => MParser a -> MParser [a]
+maxOneOrMore :: (Eq a, Eq b) => MParser a b -> MParser a [b]
 maxOneOrMore p =
     do
         a <- p
@@ -90,7 +92,7 @@ maxOneOrMore p =
         return (a:as)
 
 -- | Greedy parser iteration with continuation condition
-while :: Eq a => MParser a -> (a -> Bool) -> MParser [a]
+while :: (Eq a, Eq b) => MParser a b -> (b -> Bool) -> MParser a [b]
 while p f =
         do
             a <- p |> f
@@ -100,11 +102,11 @@ while p f =
         return []
 
 -- | Parser selection
-anyof :: [MParser a] -> MParser a
+anyof :: [MParser a b] -> MParser a b
 anyof [] = empty
 anyof (p:ps) = p <|> (anyof ps)
 -- anyof = foldl (<|>) empty
 
-oneof :: Eq a => [MParser a] -> MParser a
+oneof :: (Eq a, Eq b) => [MParser a b] -> MParser a b
 oneof [] = empty
 oneof (p:ps) = p </> (oneof ps)

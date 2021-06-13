@@ -19,74 +19,74 @@ import Data.Char
 import Mparseco.Core --((|>),(<|>),empty)
 import Mparseco.Utils
 
-oneChar :: MParser Char
+oneChar :: StringParser Char
 oneChar = MParser trans
     where
         trans [] = []
         trans (c:cs) = [(c,cs)]
 
-letter :: MParser Char
+letter :: StringParser Char
 letter = oneChar |> isLetter
 
-digitChar :: MParser Char
+digitChar :: StringParser Char
 digitChar = oneChar |> isDigit
 
-digit :: MParser Int
+digit :: StringParser Int
 -- digit = (oneChar |> isDigit) >>= \c -> return (ord c - (ord '0'))
 digit = do
     c <- digitChar
     return $ ord c - (ord '0')
 
-literalChar :: Char -> MParser Char
+literalChar :: Char -> StringParser Char
 literalChar c = oneChar |> (== c)
 
-naturalNumberLiteral :: MParser String
+naturalNumberLiteral :: StringParser String
 naturalNumberLiteral = do
     d <- digitChar
     ds <- maxZeroOrMore digitChar
     return $ (d:ds)
 
-naturalNumberLiterals :: MParser String
+naturalNumberLiterals :: StringParser String
 naturalNumberLiterals = do
     d <- digitChar
     ds <- allZeroOrMore digitChar
     return $ (d:ds)
 
-naturalNumbers' :: MParser Int
+naturalNumbers' :: StringParser Int
 -- naturalNumbers' = allZeroOrMore digit >>= \ds -> return (digitsToNat ds)
 naturalNumbers' = do
     ds <- allZeroOrMore digit
     return $ digitsToNat ds
 
-naturalNumbers :: MParser Int
+naturalNumbers :: StringParser Int
 -- naturalNumbers = digit >>= \d -> allZeroOrMore digit >>= \ds -> return (digitsToNat (d:ds))
 naturalNumbers = do
     d <- digit
     ds <- allZeroOrMore digit
     return $ digitsToNat (d:ds)
 
-naturalNumber :: MParser Int
+naturalNumber :: StringParser Int
 -- naturalNumber = digit >>= \d -> maxZeroOrMore digit >>= \ds -> return (digitsToNat (d:ds))
 naturalNumber = do
     d <- digit
     ds <- maxZeroOrMore digit
     return $ digitsToNat (d:ds)
 
-identifiers :: MParser String
+identifiers :: StringParser String
 identifiers = do
     l <- letter
     ls <- allZeroOrMore (letter <|> digitChar <|> (literalChar '_'))
     return (l:ls)
 
-identifier :: MParser String
+identifier :: StringParser String
 identifier = do
     l <- letter
     ls <- maxZeroOrMore (letter <|> digitChar <|> (literalChar '_'))
     return (l:ls)
 
-literal :: String -> MParser String
+literal :: String -> StringParser String
 literal "" = return ""
 literal (c:cs) = do { a <- literalChar c ; x <- literal cs; return (a:x) }
 
-spaces :: MParser String
+spaces :: StringParser String
 spaces = maxOneOrMore (oneChar |> isSpace)

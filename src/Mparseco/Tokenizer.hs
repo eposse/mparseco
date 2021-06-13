@@ -41,7 +41,7 @@ data Token =
     | TOperator String
     deriving (Eq, Show)
 
-next :: MParser Token -> MParser Token
+next :: StringParser Token -> StringParser Token
 next token =
     do
         spaces
@@ -49,19 +49,19 @@ next token =
     </>
         token
 
-nextBasicToken:: MParser Token
+nextBasicToken:: StringParser Token
 nextBasicToken= next basicToken
 
-nextToken :: [String] -> [String] -> MParser Token
+nextToken :: [String] -> [String] -> StringParser Token
 nextToken kwds ops = next $ token kwds ops
 
-nextPossibleTokens :: [String] -> [String] -> MParser Token
+nextPossibleTokens :: [String] -> [String] -> StringParser Token
 nextPossibleTokens kwds ops = next $ possibleTokens kwds ops
 
-basicToken :: MParser Token
+basicToken :: StringParser Token
 basicToken = oneof [boolToken, charToken, intToken, stringToken, identifierToken, lparToken, rparToken]
 
-token :: [String] -> [String] -> MParser Token
+token :: [String] -> [String] -> StringParser Token
 token kwds ops = do
     (oneof [keywordToken k | k <- kwds])
     </>
@@ -69,7 +69,7 @@ token kwds ops = do
     </>
     basicToken
 
-possibleTokens :: [String] -> [String] -> MParser Token
+possibleTokens :: [String] -> [String] -> StringParser Token
 possibleTokens kwds ops = do
     (oneof [keywordToken k | k <- kwds])
     <|>
@@ -77,38 +77,38 @@ possibleTokens kwds ops = do
     <|>
     basicToken
 
-basicTokenizer :: MParser [Token]
+basicTokenizer :: StringParser [Token]
 basicTokenizer = maxZeroOrMore nextBasicToken
 
-tokenizer :: [String] -> [String] -> MParser [Token]
+tokenizer :: [String] -> [String] -> StringParser [Token]
 tokenizer kwds ops = maxZeroOrMore $ nextToken kwds ops
 
-nonDetTokenizer :: [String] -> [String] -> MParser [Token]
+nonDetTokenizer :: [String] -> [String] -> StringParser [Token]
 nonDetTokenizer kwds ops = maxZeroOrMore $ nextPossibleTokens kwds ops
 
-basicTokenize :: String -> [([Token], State)]
+basicTokenize :: String -> [([Token], String)]
 basicTokenize = parse basicTokenizer
 
-tokenize :: [String] -> [String] -> String -> [([Token], State)]
+tokenize :: [String] -> [String] -> String -> [([Token], String)]
 tokenize kwds ops = parse $ tokenizer kwds ops
 
-nonDetTokenize :: [String] -> [String] -> String -> [([Token], State)]
+nonDetTokenize :: [String] -> [String] -> String -> [([Token], String)]
 nonDetTokenize kwds ops = parse $ nonDetTokenizer kwds ops
 
-boolToken :: MParser Token
+boolToken :: StringParser Token
 boolToken =
         do { literal "true"; return $ TBool True }
     <|>
         do { literal "false"; return $ TBool False }
 
-charToken :: MParser Token
+charToken :: StringParser Token
 charToken = do
     literalChar '\''
     c <- oneChar
     literalChar '\''
     return $ TChar c
 
-intToken :: MParser Token
+intToken :: StringParser Token
 intToken = do
         do { n <- naturalNumber; return $ TInt n }
     <|>
@@ -116,36 +116,36 @@ intToken = do
     <|>
         do { literalChar '+'; n <- naturalNumber; return $ TInt n }
 
-stringToken :: MParser Token
+stringToken :: StringParser Token
 stringToken = do
     literalChar '"'
     s <- oneChar `while` (/= '"')
     literalChar '"'
     return $ TString s
 
-identifierToken :: MParser Token
+identifierToken :: StringParser Token
 identifierToken = do
     name <- identifier
     return $ TIdentifier name
 
-keywordToken :: String -> MParser Token
+keywordToken :: String -> StringParser Token
 keywordToken s = do
     lit <- literal s
     spaces
     return $ TKeyword lit
 
-operatorToken :: String -> MParser Token
+operatorToken :: String -> StringParser Token
 operatorToken s = do
     lit <- literal s
     spaces
     return $ TOperator lit
 
-lparToken :: MParser Token
+lparToken :: StringParser Token
 lparToken = do
     literalChar '('
     return $ TLPar
 
-rparToken :: MParser Token
+rparToken :: StringParser Token
 rparToken = do
     literalChar ')'
     return $ TRPar
