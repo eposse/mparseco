@@ -22,7 +22,9 @@ module Mparseco.Tokenizer
     keywordToken,
     operatorToken,
     lparToken,
-    rparToken
+    rparToken,
+    untoken,
+    untokenize
 )
 where
 
@@ -149,3 +151,18 @@ rparToken :: StringParser Token
 rparToken = do
     literalChar ')'
     return $ TRPar
+
+untoken :: Token -> String
+untoken (TBool True)    = "true"
+untoken (TBool False)   = "false"
+untoken (TInt i)        = show i
+untoken (TChar c)       = show c
+untoken (TString s)     = show s
+untoken (TLPar)         = "("
+untoken (TRPar)         = ")"
+untoken (TIdentifier n) = n
+untoken (TKeyword k)    = k
+untoken (TOperator o)   = o
+
+untokenize :: [Token] -> String
+untokenize l = foldl (\x y -> x ++ " " ++ y) ""  (map untoken l)
