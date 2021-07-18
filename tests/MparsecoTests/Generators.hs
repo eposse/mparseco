@@ -28,6 +28,7 @@ module MparsecoTests.Generators
 where
 
 import Test.QuickCheck
+import Mparseco.Tokenizer
 
 lowercaseLetters    = choose ('a','z')
 uppercaseLetters    = choose ('A','Z')
@@ -53,6 +54,16 @@ normalString                = listOf $ normalChar
 arbitraryASCIIString        = listOf $ arbitraryASCIIChar
 arbitraryPrintableString    = listOf $ arbitraryPrintableChar
 arbitraryUnicodeString      = listOf $ arbitraryUnicodeChar
+
+-- TODO: ADD Token generators
+
+-- tokeng :: Gen Token
+-- tokeng =
+--     oneof
+--     [
+--         return $ TBool arbitrary,
+--         return $ TInt arbitrary
+--     ]
 
 printSamples = do
     putStrLn "* letterString sample:"
