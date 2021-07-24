@@ -57,12 +57,13 @@ executable mparsecoexample
     Mparseco.BasicParsers,
     Mparseco.Core,
     Mparseco.Tokenizer,
-    Mparseco.Utils
+    Mparseco.Utils,
+    MparsecoTests.Generators
   build-depends:
     base ^>=4.13.0.0,
     Cabal ^>= 3.0.0.0,
     QuickCheck,
     cabal-test-quickcheck,
     mparseco
-  hs-source-dirs:      examples, src
+  hs-source-dirs:      examples, src, tests
   default-language:    Haskell2010

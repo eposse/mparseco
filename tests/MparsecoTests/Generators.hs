@@ -23,6 +23,10 @@ module MparsecoTests.Generators
     arbitraryASCIIString,
     arbitraryPrintableString,
     arbitraryUnicodeString,
+    arbitraryKeyword,
+    arbitraryOperator,
+    arbitraryIdentifier,
+    tokeng,
     printSamples
 )
 where
@@ -41,29 +45,56 @@ brackets            = elements ['(',')','[',']','{','}']
 punctuation         = elements ['.',',',':',';','!','?']
 quotes              = elements ['\'','\"','`']
 otherSymbol         = elements ['~','@','#','$','%','^','&','_','|']
+nonQuotSymbols      = oneof [ arithOp, relOp, brackets, punctuation, otherSymbol ]
 symbols             = oneof [ arithOp, relOp, brackets, punctuation, quotes, otherSymbol ]
 spaces              = elements [' ','\t','\n','\r']
 normalChar          = oneof [ alphaNum, symbols, spaces ]
 
-simpleLetterString          = listOf $ choose ('a','d')
-letterString                = listOf $ letters
-digitString                 = listOf $ digits
-alphaNumString              = listOf $ alphaNum
-symbolString                = listOf $ symbols
+simpleLetterString          = listOf1 $ choose ('a','d')
+letterString                = listOf1 $ letters
+digitString                 = listOf1 $ digits
+alphaNumString              = listOf1 $ alphaNum
+symbolString                = listOf1 $ symbols
 normalString                = listOf $ normalChar
 arbitraryASCIIString        = listOf $ arbitraryASCIIChar
 arbitraryPrintableString    = listOf $ arbitraryPrintableChar
 arbitraryUnicodeString      = listOf $ arbitraryUnicodeChar
 
--- TODO: ADD Token generators
+identifierChar :: Gen Char
+identifierChar =
+    oneof
+    [
+        elements ['_'],
+        letters,
+        digits
+    ]
 
--- tokeng :: Gen Token
--- tokeng =
---     oneof
---     [
---         return $ TBool arbitrary,
---         return $ TInt arbitrary
---     ]
+identifierString :: Gen String
+identifierString =
+    do
+        first <- oneof [ choose ('_','_'), letters ]
+        rest <- listOf identifierChar
+        return $ (first:rest)
+
+arbitraryKeyword = letterString
+arbitraryOperator = scale (min 4) $ listOf1 nonQuotSymbols
+arbitraryIdentifier = identifierString
+
+
+tokeng :: Gen Token
+tokeng =
+    oneof
+    [
+        do { b <- arbitrary; return $ TBool b },
+        do { i <- arbitrary; return $ TInt i },
+        do { c <- arbitrary; return $ TChar c },
+        do { s <- arbitrary; return $ TString s },
+        do { k <- arbitraryKeyword; return $ TKeyword k },
+        do { o <- arbitraryOperator; return $ TOperator o },
+        do { i <- arbitraryIdentifier; return $ TIdentifier i },
+        do { return $ TLPar },
+        do { return $ TRPar }
+    ]
 
 printSamples = do
     putStrLn "* letterString sample:"

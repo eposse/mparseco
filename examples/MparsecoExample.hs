@@ -1,6 +1,7 @@
 module Main where
 
 import Mparseco
+import MparsecoTests.Generators
 import Test.QuickCheck as QC
 
 r1 = parse oneChar "qwerty"
@@ -147,14 +148,6 @@ r61 = nonDetTokenize ["var","oof"] ["="] "variable = oofs 42"
 r62 = nonDetTokenize ["var","oof"] ["="] "variable = oof 42"
 
 r63 = nonDetTokenize ["var","oof"] ["="] "var iable = oof 42"
-
-tokeng :: Gen Token
-tokeng =
-    QC.oneof
-    [
-        do { b <- arbitrary; return $ TBool b },
-        do { i <- arbitrary; return $ TInt i }
-    ]
 
 
 main = do
