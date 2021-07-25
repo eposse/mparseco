@@ -1,6 +1,21 @@
 module Mparseco.Tokenizer
 (
     Token(..),
+    isBoolToken,
+    isCharToken,
+    isIntToken,
+    isStringToken,
+    isKeywordToken,
+    isOperatorToken,
+    isIdentifierToken,
+    isLParToken,
+    isRParToken,
+    boolTokenValue,
+    intTokenValue,
+    stringTokenValue,
+    keywordTokenString,
+    operatorTokenString,
+    identifierTokenString,
     next,
     nextBasicToken,
     nextToken,
@@ -23,6 +38,7 @@ module Mparseco.Tokenizer
     operatorToken,
     lparToken,
     rparToken,
+    unescape,
     untoken,
     untokenize
 )
@@ -30,6 +46,7 @@ where
 
 import Mparseco.Core
 import Mparseco.BasicParsers
+import Debug.Trace
 
 data Token =
       TBool Bool
@@ -37,11 +54,46 @@ data Token =
     | TInt Int
     | TString String
     | TKeyword String
+    | TOperator String
     | TIdentifier String
     | TLPar
     | TRPar
-    | TOperator String
     deriving (Eq, Show)
+
+isBoolToken (TBool _) = True
+isBoolToken _ = False
+
+isIntToken (TInt _) = True
+isIntToken _ = False
+
+isCharToken (TChar _) = True
+isCharToken _ = False
+
+isStringToken (TString _) = True
+isStringToken _ = False
+
+isKeywordToken (TKeyword _) = True
+isKeywordToken _ = False
+
+isOperatorToken (TOperator _) = True
+isOperatorToken _ = False
+
+isIdentifierToken (TIdentifier _) = True
+isIdentifierToken _ = False
+
+isLParToken TLPar = True
+isLParToken _ = False
+
+isRParToken TRPar = True
+isRParToken _ = False
+
+boolTokenValue (TBool b) = b
+charTokenValue (TChar c) = c
+intTokenValue (TInt i) = i
+stringTokenValue (TString s) = s
+keywordTokenString (TKeyword k) = k
+operatorTokenString (TOperator o) = o
+identifierTokenString (TIdentifier i) = i
 
 next :: StringParser Token -> StringParser Token
 next token =
@@ -133,13 +185,11 @@ identifierToken = do
 keywordToken :: String -> StringParser Token
 keywordToken s = do
     lit <- literal s
-    spaces
     return $ TKeyword lit
 
 operatorToken :: String -> StringParser Token
 operatorToken s = do
     lit <- literal s
-    spaces
     return $ TOperator lit
 
 lparToken :: StringParser Token
@@ -152,12 +202,16 @@ rparToken = do
     literalChar ')'
     return $ TRPar
 
+unescape :: String -> String
+unescape s | trace ("unescape " ++ show s ++ "") False = undefined
+unescape s = read $ "\"" ++ s ++ "\""
+
 untoken :: Token -> String
 untoken (TBool True)    = "true"
 untoken (TBool False)   = "false"
 untoken (TInt i)        = show i
-untoken (TChar c)       = show c
-untoken (TString s)     = show s
+untoken (TChar c)       = unescape $ show c
+untoken (TString s)     = unescape $ s -- "\"" ++ s ++ "\""
 untoken (TLPar)         = "("
 untoken (TRPar)         = ")"
 untoken (TIdentifier n) = n
@@ -165,4 +219,4 @@ untoken (TKeyword k)    = k
 untoken (TOperator o)   = o
 
 untokenize :: [Token] -> String
-untokenize l = foldl (\x y -> x ++ " " ++ y) ""  (map untoken l)
+untokenize l = (foldl1 (\x y -> x ++ " " ++ y) (map untoken l))

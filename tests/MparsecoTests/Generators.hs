@@ -26,7 +26,9 @@ module MparsecoTests.Generators
     arbitraryKeyword,
     arbitraryOperator,
     arbitraryIdentifier,
-    tokeng,
+    arbitraryToken,
+    arbitraryTokens,
+    arbitraryTokensKwdsOps,
     printSamples
 )
 where
@@ -45,7 +47,7 @@ brackets            = elements ['(',')','[',']','{','}']
 punctuation         = elements ['.',',',':',';','!','?']
 quotes              = elements ['\'','\"','`']
 otherSymbol         = elements ['~','@','#','$','%','^','&','_','|']
-nonQuotSymbols      = oneof [ arithOp, relOp, brackets, punctuation, otherSymbol ]
+operatorSymbols      = oneof [ arithOp, relOp, punctuation, otherSymbol ]
 symbols             = oneof [ arithOp, relOp, brackets, punctuation, quotes, otherSymbol ]
 spaces              = elements [' ','\t','\n','\r']
 normalChar          = oneof [ alphaNum, symbols, spaces ]
@@ -77,24 +79,35 @@ identifierString =
         return $ (first:rest)
 
 arbitraryKeyword = letterString
-arbitraryOperator = scale (min 4) $ listOf1 nonQuotSymbols
+arbitraryOperator = scale (min 4) $ listOf1 operatorSymbols
 arbitraryIdentifier = identifierString
 
 
-tokeng :: Gen Token
-tokeng =
+arbitraryToken :: Gen Token
+arbitraryToken =
     oneof
     [
         do { b <- arbitrary; return $ TBool b },
         do { i <- arbitrary; return $ TInt i },
-        do { c <- arbitrary; return $ TChar c },
-        do { s <- arbitrary; return $ TString s },
+        do { c <- normalChar; return $ TChar c },
+        do { s <- normalString; return $ TString s },
         do { k <- arbitraryKeyword; return $ TKeyword k },
         do { o <- arbitraryOperator; return $ TOperator o },
         do { i <- arbitraryIdentifier; return $ TIdentifier i },
         do { return $ TLPar },
         do { return $ TRPar }
     ]
+
+arbitraryTokens :: Gen [Token]
+arbitraryTokens = listOf arbitraryToken
+
+arbitraryTokensKwdsOps :: Gen ([Token], [Token], [Token])
+arbitraryTokensKwdsOps =
+    do
+        tokens <- listOf arbitraryToken
+        let kwds = filter isKeywordToken tokens
+        let ops = filter isOperatorToken tokens
+        return $ (tokens, kwds, ops)
 
 printSamples = do
     putStrLn "* letterString sample:"

@@ -80,7 +80,7 @@ identifiers = do
 
 identifier :: StringParser String
 identifier = do
-    l <- letter
+    l <- letter <|> (literalChar '_')
     ls <- maxZeroOrMore (letter <|> digitChar <|> (literalChar '_'))
     return (l:ls)
 

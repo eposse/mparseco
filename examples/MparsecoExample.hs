@@ -149,6 +149,38 @@ r62 = nonDetTokenize ["var","oof"] ["="] "variable = oof 42"
 
 r63 = nonDetTokenize ["var","oof"] ["="] "var iable = oof 42"
 
+r64 = untokenize tokens where tokens = [ TKeyword "R" ]
+
+r65 = tokenize ["R"] [] "R"
+
+r66 = tokenize ["R"] [] "R "
+
+r67 = untokenize tokens
+    where
+        tokens = [TString "&",TIdentifier "__K",TInt 5,TBool False,TChar '\719766']
+
+r68 = tokenize [] [] r67
+
+r69 = untokenize [TChar '\ETB']
+
+r70 = tokenize [] [] r69
+
+r71 = untokenize [TInt 0,TChar 'w',TString "f#",TString "\DC2c`",TChar 'g']
+
+r72 = tokenize [] [] r71
+
+r73 = untokenize [TString "1",TIdentifier "R",TString "\\"]
+
+r74 = tokenize [] [] r73
+
+r75 = untokenize [TChar '2',TIdentifier "_H32_M2G_",TKeyword "Gnf",TLPar,TChar '\t',TIdentifier "p",TOperator "=,<",TIdentifier "_sF_j_150"]
+
+r76 = tokenize ["Gnf"] ["=,<"] r75
+
+r77 = untokenize [TString "\\a\\a",TLPar]
+
+r78 = tokenize [] [] r77
+
 
 main = do
     putStrLn "Hello Mparseco"

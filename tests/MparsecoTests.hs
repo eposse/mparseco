@@ -67,6 +67,8 @@ prop_filt_alt_2_tests =
 prop_bchoice_seq_1_tests =
     [ testProperty ("prop_bchoice_seq_1" ++ label ++ " oneChar literalChar literalChar") $ prop_bchoice_seq_1 g oneChar literalChar literalChar | (label, g) <- generators ]
 
+prop_tok_untok_tests =
+    [ testProperty ("prop_tok_untok_tests") $ prop_tok_untok_1 ]
 
 tests :: IO [Test]
 tests = do
@@ -87,4 +89,5 @@ tests = do
         prop_alt_seq_4_tests ++
         prop_filt_alt_1_tests ++
         prop_filt_alt_2_tests ++
-        prop_bchoice_seq_1_tests
+        prop_bchoice_seq_1_tests ++
+        prop_tok_untok_tests

@@ -16,19 +16,21 @@ module MparsecoTests.Properties
     prop_alt_seq_4,
     prop_filt_alt_1,
     prop_filt_alt_2,
-    prop_bchoice_seq_1
+    prop_bchoice_seq_1,
+    prop_tok_untok_1
 )
 where
 
 import Mparseco
+import MparsecoTests.Generators
 import Test.QuickCheck
 
 -- Variable naming conventions:
 -- Name     Description         Type
 -- g        Generator           Gen State
 -- s        State/String        State
--- p,q,r    Parser              MParser a
--- k,h      Continuation        a -> MParser a
+-- p,q,r    Parser              MParser a b
+-- k,h      Continuation        b -> MParser a b
 -- f        Function/Predicate  a -> b, a -> Bool
 
 
@@ -145,3 +147,17 @@ prop_filt_alt_2 g p q f = forAll g $ ((p <|> q) |> f) `parserEq` ((p |> f) <|> (
 -- Biased choice Property 1:
 --   Sequencing distributes rightward over biased choice if the parsers are unambiguous.
 prop_bchoice_seq_1 g p k h = forAll g $ ((p >>= k) </> (p >>= h)) `parserEq` (p >>= \a -> ((k a) </> (h a)))
+
+
+-- Tokenizing properties
+
+prop_tok_untok_1 =
+    forAll arbitraryTokens $
+        \tokens ->
+            tokens /= []
+            ==>
+            let
+                kwds = map keywordTokenString $ filter isKeywordToken tokens
+                ops = map operatorTokenString $ filter isOperatorToken tokens
+            in
+                tokenize kwds ops (untokenize tokens) == [(tokens,"")]
