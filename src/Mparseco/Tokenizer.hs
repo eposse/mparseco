@@ -202,16 +202,19 @@ rparToken = do
     literalChar ')'
     return $ TRPar
 
+quote :: String -> String
+quote s = "\"" ++ s ++ "\""
+
 unescape :: String -> String
-unescape s | trace ("unescape " ++ show s ++ "") False = undefined
-unescape s = read $ "\"" ++ s ++ "\""
+-- unescape s | trace ("unescape " ++ show s ++ "") False = undefined
+unescape = read . quote
 
 untoken :: Token -> String
 untoken (TBool True)    = "true"
 untoken (TBool False)   = "false"
 untoken (TInt i)        = show i
 untoken (TChar c)       = unescape $ show c
-untoken (TString s)     = unescape $ s -- "\"" ++ s ++ "\""
+untoken (TString s)     = quote $ unescape $ s
 untoken (TLPar)         = "("
 untoken (TRPar)         = ")"
 untoken (TIdentifier n) = n

@@ -47,10 +47,11 @@ brackets            = elements ['(',')','[',']','{','}']
 punctuation         = elements ['.',',',':',';','!','?']
 quotes              = elements ['\'','\"','`']
 otherSymbol         = elements ['~','@','#','$','%','^','&','_','|']
-operatorSymbols      = oneof [ arithOp, relOp, punctuation, otherSymbol ]
+operatorSymbols     = oneof [ arithOp, relOp, punctuation, otherSymbol ]
 symbols             = oneof [ arithOp, relOp, brackets, punctuation, quotes, otherSymbol ]
 spaces              = elements [' ','\t','\n','\r']
 normalChar          = oneof [ alphaNum, symbols, spaces ]
+simpleChar          = oneof [ alphaNum, operatorSymbols, spaces ]
 
 simpleLetterString          = listOf1 $ choose ('a','d')
 letterString                = listOf1 $ letters
@@ -58,6 +59,7 @@ digitString                 = listOf1 $ digits
 alphaNumString              = listOf1 $ alphaNum
 symbolString                = listOf1 $ symbols
 normalString                = listOf $ normalChar
+simpleString                = listOf $ simpleChar
 arbitraryASCIIString        = listOf $ arbitraryASCIIChar
 arbitraryPrintableString    = listOf $ arbitraryPrintableChar
 arbitraryUnicodeString      = listOf $ arbitraryUnicodeChar
@@ -90,7 +92,7 @@ arbitraryToken =
         do { b <- arbitrary; return $ TBool b },
         do { i <- arbitrary; return $ TInt i },
         do { c <- normalChar; return $ TChar c },
-        do { s <- normalString; return $ TString s },
+        do { s <- simpleString; return $ TString s },
         do { k <- arbitraryKeyword; return $ TKeyword k },
         do { o <- arbitraryOperator; return $ TOperator o },
         do { i <- arbitraryIdentifier; return $ TIdentifier i },

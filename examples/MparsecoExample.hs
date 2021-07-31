@@ -181,6 +181,37 @@ r77 = untokenize [TString "\\a\\a",TLPar]
 
 r78 = tokenize [] [] r77
 
+r79 = untokenize [TString "",TRPar,TString "* ",TLPar,TInt 0]
+
+r80 = tokenize [] [] r79
+
+r81t = [TOperator "#:|=",TString "-;66x\\\" ",TInt (-12),TBool False]
+r81 = untokenize r81t
+r81o = map operatorTokenString $ filter isOperatorToken r81t
+
+r82 = tokenize [] r81o r81
+
+r83t = [TChar '`',TChar '~',TRPar,TChar '\n',TLPar,TLPar,TIdentifier "__wCM7P0_",TLPar,TOperator "~+/$",TOperator ">/",TChar '\r',TLPar,TKeyword "dGFRYKyuyKjYmeFboanF",TIdentifier "neQs5K2_Hj__p",TKeyword "dDEMyyWBCw",TOperator "-",TBool True,TChar '\n',TInt 28,TLPar,TChar '\t',TInt 21,TLPar,TInt (-14),TString "\n\tQ+TA*\n\nF X\n \n,",TInt (-23),TInt 2,TRPar,TInt 29,TKeyword "bL",TBool True,TInt (-8)]
+r83k = map keywordTokenString $ filter isKeywordToken r83t
+r83o = map operatorTokenString $ filter isOperatorToken r83t
+r83 = untokenize r83t
+
+r84 = tokenize r83k r83o r83
+
+r84t = fst . head $ r84
+
+r84z = zip r83t r84t
+r84d = [(t,t') | (t,t') <- r84z, t /= t']
+
+#TODO: tokenize negative numbers
+
+
+display :: (Show a,Eq a) => [(a,a)] -> IO()
+display zs = sequence_ [putStrLn (show a ++ rel (a,b) ++ show b) | (a,b) <- zs]
+    where
+        rel (a,b) | a == b = " = "
+        rel (a,b)          = " /= "
+
 
 main = do
     putStrLn "Hello Mparseco"
