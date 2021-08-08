@@ -47,6 +47,7 @@ where
 import Mparseco.Core
 import Mparseco.BasicParsers
 import Debug.Trace
+import Data.List
 
 data Token =
       TBool Bool
@@ -113,23 +114,27 @@ nextPossibleTokens :: [String] -> [String] -> StringParser Token
 nextPossibleTokens kwds ops = next $ possibleTokens kwds ops
 
 basicToken :: StringParser Token
-basicToken = oneof [boolToken, charToken, intToken, stringToken, identifierToken, lparToken, rparToken]
+basicToken = oneof [boolToken, charToken, intToken, stringToken, lparToken, rparToken]
 
 token :: [String] -> [String] -> StringParser Token
 token kwds ops = do
-    (oneof [keywordToken k | k <- kwds])
-    </>
-    (oneof [operatorToken op | op <- ops])
-    </>
     basicToken
+    </>
+    (oneof [keywordToken k | k <- sortBy (flip compare) kwds])
+    </>
+    (oneof [operatorToken op | op <- sortBy (flip compare) ops])
+    </>
+    identifierToken
 
 possibleTokens :: [String] -> [String] -> StringParser Token
 possibleTokens kwds ops = do
-    (oneof [keywordToken k | k <- kwds])
-    <|>
-    (oneof [operatorToken op | op <- ops])
-    <|>
     basicToken
+    <|>
+    (oneof [keywordToken k | k <- sortBy (flip compare) kwds])
+    <|>
+    (oneof [operatorToken op | op <- sortBy (flip compare) ops])
+    <|>
+    identifierToken
 
 basicTokenizer :: StringParser [Token]
 basicTokenizer = maxZeroOrMore nextBasicToken
@@ -210,16 +215,18 @@ unescape :: String -> String
 unescape = read . quote
 
 untoken :: Token -> String
-untoken (TBool True)    = "true"
-untoken (TBool False)   = "false"
-untoken (TInt i)        = show i
-untoken (TChar c)       = unescape $ show c
-untoken (TString s)     = quote $ unescape $ s
-untoken (TLPar)         = "("
-untoken (TRPar)         = ")"
-untoken (TIdentifier n) = n
-untoken (TKeyword k)    = k
-untoken (TOperator o)   = o
+untoken (TBool True)          = "true"
+untoken (TBool False)         = "false"
+untoken (TInt i)              = show i
+untoken (TChar c) | c == '"'  = "'\"'"
+untoken (TChar c) | c == '\\' = "'\\'"
+untoken (TChar c)             = unescape $ show c
+untoken (TString s)           = quote $ unescape $ s
+untoken (TLPar)               = "("
+untoken (TRPar)               = ")"
+untoken (TIdentifier n)       = n
+untoken (TKeyword k)          = k
+untoken (TOperator o)         = o
 
 untokenize :: [Token] -> String
 untokenize l = (foldl1 (\x y -> x ++ " " ++ y) (map untoken l))
