@@ -151,6 +151,9 @@ prop_bchoice_seq_1 g p k h = forAll g $ ((p >>= k) </> (p >>= h)) `parserEq` (p 
 
 -- Tokenizing properties
 
+-- Tokenizing Property 1:
+--   tokenize is left inverse of untokenize. This is, the result of untokenizing a list of tokens and then
+--   tokenizing that string results in the original list of tokens with no left-over string.
 prop_tok_untok_1 =
     forAll arbitraryTokens $
         \tokens ->
