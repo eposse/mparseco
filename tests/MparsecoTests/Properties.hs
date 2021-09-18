@@ -129,6 +129,12 @@ prop_alt_seq_3 g p q k = forAll g $ ((p <|> q) >>= k) `parserEq` ((p >>= k) <|> 
 --   Sequencing distributes rightward over alternation if the parsers are unambiguous.
 prop_alt_seq_4 g p k h = forAll g $ (p >>= \a -> ((k a) <|> (h a))) `parserEq` ((p >>= k) <|> (p >>= h))
 
+-- Note that for an ambiguous parser p, the expression
+--    ((p >>= k) <|> (p >>= h))
+-- gives a "depth-first" parse, as all the parses of the left term (p >>= k) are produced before all parses of the right term (p >>= h).
+-- On the other hand, the expression
+--    (p >>= \a -> ((k a) <|> (h a)))
+-- results in a "breath-first" parse, as each of the parses of p are fed to the two continuations k and h, resulting in a list with interleaved results. If the parsers returned a bag rather than a list, the two expressions would be equal.
 
 -- Filtering laws
 

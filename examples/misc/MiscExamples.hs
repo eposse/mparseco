@@ -1,10 +1,12 @@
 module Main where
 
+import Debug.Trace
 import Mparseco
 import MparsecoTests.Generators
 import Test.QuickCheck as QC
 import Data.List
 import Data.Ord
+import Data.Char
 
 r1 = parse oneChar "qwerty"
 
@@ -257,6 +259,81 @@ r105 = tokenize [] ["_"] "x_y"
 -- r106t = [TOperator "=.?;",TLPar,TKeyword"ysSURgFtK",TRPar,TOperator ".:#>",TOperator ",",TKeyword "bVLkbsDOrBDanJICrVSYFsqFIkPcWZpnrrDUaFVTcMwToMEuhyR",TLPar,TString "\\n/\\t\\t&\\n0>\\n",TLPar,TString "\\t\\n7<J9u3?/;\\t\\n\\r9\\t|\\t*.\\t8I",TIdentifier "W_08t_4__1_Hq1L____O9_",TRPar,TLPar,TChar '_',TRPar,TIdentifier "_75_39cG94iB6M_1_591g_q_5_8Bq6Q86___K49442__",TBool True,TLPar,TLPar,TIdentifier "V5__6QX7",TChar '"',TInt 5,TBool True,TKeyword "b",TKeyword "NrnIQZWHNXeTLZcCGQDKUUlCXZKKSKtqZFZoDoULGyhcZEwwKsNXKcdosCGq",TChar ' ',TLPar,TInt (-49),TKeyword "LqAYGfukTjIrbwyMEjTzHYQeCxlsuashlAGrJYYnmV",TLPar,TInt (-14),TOperator "+@-",TInt 13,TKeyword "VXxnmmnsPmgFVdDfmJdPOyUT",TInt 18,TInt 9,TChar '*',TOperator "$=<",TInt (-9),TInt (-16),TInt 23,TString "\\r\\t0\\r=m<76e-^M95*6m\\r 36 ~ \\t\\nR4=\\to\\n$ \\n!Zk9\\r5",TIdentifier "_____84F_98516Y43__AuN__nA_V1G_50wQ_FC85XR53f6K_e_H",TOperator "+",TString "/\\r9+I\\n \\t\\r\\t1S>C",TKeyword "njwEXIgAMgrG",TIdentifier "_z_3d6_4j_w0_6_E2I0__ixKe3___S1_yN6iG_XS_V2j9o935OI_0265795e2",TChar '\n',TKeyword "ddDSvElwXOYJFdWlqWexkYGQJbfVAXjUoaDWURkKpvkDBe",TIdentifier "_V8_a__Z2__Jd____wa64__1__29V386_U",TKeyword "IcUdsXyptcoJaAwqTYmPXtnrXSBrWJxBxprhnHmjwqvDyywuRStfeLKoyxcRol"]
 
 r106t = [TOperator "=.?;",TLPar,TKeyword "ysSURgFtK",TRPar,TOperator ".:#>",TOperator ",",TKeyword "bVLkbsDOrBDanJICrVSYFsqFIkPcWZpnrrDUaFVTcMwToMEuhyR",TLPar,TString "\n/\t\t&\n0>\n",TLPar,TString "\t\n7<J9u3?/;\t\n\r9\t|\t*.\t8I",TIdentifier "W_08t_4__1_Hq1L____O9_",TRPar,TLPar,TChar '_',TRPar,TIdentifier "_75_39cG94iB6M_1_591g_q_5_8Bq6Q86___K49442__",TBool True,TLPar,TLPar,TIdentifier "V5__6QX7",TChar '"',TInt 5,TBool True,TKeyword "b",TKeyword "NrnIQZWHNXeTLZcCGQDKUUlCXZKKSKtqZFZoDoULGyhcZEwwKsNXKcdosCGq",TChar 'a', TChar ' ',TLPar,TInt (-49),TKeyword "LqAYGfukTjIrbwyMEjTzHYQeCxlsuashlAGrJYYnmV",TLPar,TInt (-14),TOperator "+@-",TInt 13,TKeyword "VXxnmmnsPmgFVdDfmJdPOyUT",TInt 18,TInt 9,TChar '*',TOperator "$=<",TInt (-9),TInt (-16),TInt 23,TString "\r\t0\r=m<76e-^M95*6m\r 36 ~ \t\nR4=\to\n$ \n!Zk9\r5",TIdentifier "_____84F_98516Y43__AuN__nA_V1G_50wQ_FC85XR53f6K_e_H",TOperator "+",TString "/\r9+I\n \t\r\t1S>C",TKeyword "njwEXIgAMgrG",TIdentifier "_z_3d6_4j_w0_6_E2I0__ixKe3___S1_yN6iG_XS_V2j9o935OI_0265795e2",TChar '\n',TKeyword "ddDSvElwXOYJFdWlqWexkYGQJbfVAXjUoaDWURkKpvkDBe",TIdentifier "_V8_a__Z2__Jd____wa64__1__29V386_U",TKeyword "IcUdsXyptcoJaAwqTYmPXtnrXSBrWJxBxprhnHmjwqvDyywuRStfeLKoyxcRol"]
+
+
+r107t = []
+r107 = nonDetTokenize ["ask"] [] "ask"
+
+r108 = nonDetTokenize ["ask"] [] "askance"
+
+-- (p >>= \a -> ((k a) <|> (h a))) `parserEq` ((p >>= k) <|> (p >>= h))
+
+data Kind = A | B deriving (Eq, Show)
+data TTok =
+    TKey Kind String
+    | TId Kind String
+    deriving (Eq, Show)
+
+r109p = oneCharStr <|> twoCharStr
+oneCharStr = oneChar >>= \c -> return [c]
+twoCharStr = oneChar >>= \c1 -> oneChar >>= \c2 -> return [c1,c2]
+
+newtype T = T String deriving (Show, Eq)
+-- literal' :: String -> StringParser SpecialString
+-- literal' "" = return $ SpecialString ""
+-- literal' (c:cs) = do { a <- literalChar c ; x <- literal' cs; return SpecialString (a:x) }
+
+r109k s = (literal $ map toUpper s) >>= \s' -> return $ T s'
+
+r109s = oneCharStr >>= r109k
+
+r110p = r109p
+
+r110k "a" | trace ("r110k " ++ show "a") True = literalChar 'x' >> return 1
+r110k "ab" | trace ("r110k " ++ show "ab") True = literalChar 'y' >> return 2
+r110k x | trace ("r110k " ++ show x) True = return 3
+
+r110s = oneCharStr >>= r110k
+
+r111s = r110p >>= r110k
+
+r112p = r110p
+
+r112k "a" | trace ("r112k " ++ show "a") True = (literalChar 'b' >> return 1) <|> (literalChar 'y' >> return 2)
+r112k "ab" | trace ("r112k " ++ show "ab") True = (literalChar 'u' >> return 3) <|> (literalChar 'v' >> return 4)
+r112k x | trace ("r112k " ++ show x) True = return 5
+
+r112s = r112p >>= r112k
+
+r113p = r110p
+
+r113k "a" | trace ("r113k " ++ show "a") True = (literalChar 'b' >> return 1) <|> (literalChar 'y' >> return 2)
+r113k "ab" | trace ("r113k " ++ show "ab") True = (literalChar 'u' >> return 3) <|> (literalChar 'v' >> return 4)
+r113k x | trace ("r113k " ++ show x) True = return 5
+
+r113h "a" | trace ("r113h " ++ show "a") True = (literalChar 'b' >> return 6) <|> (literalChar 'y' >> return 7)
+r113h "ab" | trace ("r113h " ++ show "ab") True = (literalChar 'u' >> return 8) <|> (literalChar 'v' >> return 9)
+r113h x | trace ("r113h " ++ show x) True = return 10
+
+r113s = r113p >>= \s -> (r113k s <|> r113h s)
+
+r113s' = (r113p >>= r113k) <|> (r113p >>= r113h)
+
+
+-- r109l = (p >>= \a -> ((k a) <|> (h a)))
+--     where
+--         p = r109p
+--         k a =
+--
+-- r109r = (p >>= k) <|> (p >>= h)
+--     where
+--         p = r109p
+--         k ((TKeyword s):_) = tokenizer ["one-"++s] []
+--         k ((TIdentifier s):_) = tokenizer ["two-"++s] []
+--         h ((TKeyword s):_) = tokenizer ["uno-"++s] []
+--         h ((TIdentifier s):_) = tokenizer ["due-"++s] []
+--
+-- r109l'= parse r109l "ask one-a"
 
 
 data TA =
