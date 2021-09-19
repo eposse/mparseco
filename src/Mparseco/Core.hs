@@ -55,6 +55,10 @@ instance Alternative (MParser a) where
     -- p1 <|> p2 | trace ("(<|>) (" ++ show p1 ++ ") (" ++ show p2 ++ ")") False = undefined
     p1 <|> p2 = MParser (\s -> (parse p1 s) ++ (parse p2 s))
 
+-- | Parser failure
+instance MonadFail (MParser a) where
+    fail _ = empty
+
 -- | Parser filetering
 (|>) :: MParser a b -> (b -> Bool) -> MParser a b
 p |> f = p >>= \a -> if f a then return a else empty

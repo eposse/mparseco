@@ -5,6 +5,7 @@ import Mparseco
 import Expr
 import FullyParenthesisedExprParser as Fpep
 import LeftRecursiveExprParser as Lrep
+import LeftRecursiveExprTokParser as Lretp
 
 r1 = parse Fpep.number "123"
 
@@ -36,7 +37,21 @@ r14 = parse Lrep.expr "1*(2+3)"
 
 r15 = parse Lrep.expr "(1*2)+3"
 
+r16 = parse Lrep.expr "1 + 2 * 3"
 
+r17 = parse Lretp.number "2"
+
+r18 = parse Lretp.expr "1+2*3"
+
+r19 = parse Lretp.expr "1+(2*3)"
+
+r20 = parse Lretp.expr "(1+2)*3"
+
+r21 = parse Lretp.expr "1*2+3"
+
+r22 = parse Lretp.expr "1*(2+3)"
+
+r23 = parse Lretp.expr "(1*2)+3"
 
 main = do
     putStrLn "Expression parsing example"
