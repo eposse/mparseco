@@ -45,6 +45,9 @@ instance Applicative (MParser a) where
     (<*>) = ap
 
 -- | Parser sequencing
+-- Interesting: note that this is almost the same as the State monad,
+-- but producing a list of value/state pairs rather than a single one.
+-- Perhaps this can be interpreted as thinking that parsers are non-deterministic state machines.
 instance Monad (MParser a) where
     return c = MParser (\s -> [(c,s)])
     p >>= k  = MParser (\s -> [(b,z) | (a,y) <- parse p s, (b,z) <- parse (k a) y])
@@ -54,6 +57,10 @@ instance Alternative (MParser a) where
     empty = MParser (\s -> [])
     -- p1 <|> p2 | trace ("(<|>) (" ++ show p1 ++ ") (" ++ show p2 ++ ")") False = undefined
     p1 <|> p2 = MParser (\s -> (parse p1 s) ++ (parse p2 s))
+
+instance MonadPlus (MParser a) where
+    mzero = empty
+    mplus = (<|>)
 
 -- | Parser failure
 instance MonadFail (MParser a) where

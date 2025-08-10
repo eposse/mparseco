@@ -1,6 +1,7 @@
 module Mparseco.Tokenizer
 (
     Token(..),
+    TokensParser(..),
     isBoolToken,
     isCharToken,
     isIntToken,
@@ -40,7 +41,17 @@ module Mparseco.Tokenizer
     rparToken,
     unescape,
     untoken,
-    untokenize
+    untokenize,
+    oneToken,
+    boolToken',
+    charToken',
+    intToken',
+    stringToken',
+    identifierToken',
+    keywordToken',
+    operatorToken',
+    lparToken',
+    rparToken'
 )
 where
 
@@ -60,6 +71,8 @@ data Token =
     | TLPar
     | TRPar
     deriving (Eq, Show)
+
+type TokensParser = MParser [Token]
 
 isBoolToken (TBool _) = True
 isBoolToken _ = False
@@ -229,4 +242,65 @@ untoken (TKeyword k)          = k
 untoken (TOperator o)         = o
 
 untokenize :: [Token] -> String
+untokenize [] = ""
 untokenize l = (foldl1 (\x y -> x ++ " " ++ y) (map untoken l))
+
+oneToken :: TokensParser Token
+oneToken = MParser trans
+    where
+        trans [] = []
+        trans (t:ts) = [(t,ts)]
+
+boolToken' :: TokensParser Token
+boolToken' = MParser trans
+    where
+        trans (TBool b:ts) = [(TBool b,ts)]
+        trans _ = []
+
+charToken' :: TokensParser Token
+charToken' = MParser trans
+    where
+        trans (TChar c:ts) = [(TChar c,ts)]
+        trans _ = []
+
+intToken' :: TokensParser Token
+intToken' = MParser trans
+    where
+        trans (TInt i:ts) = [(TInt i,ts)]
+        trans _ = []
+
+stringToken' :: TokensParser Token
+stringToken' = MParser trans
+    where
+        trans (TString s:ts) = [(TString s,ts)]
+        trans _ = []
+
+identifierToken' :: TokensParser Token
+identifierToken' = MParser trans
+    where
+        trans (TIdentifier i:ts) = [(TIdentifier i,ts)]
+        trans _ = []
+
+keywordToken' :: TokensParser Token
+keywordToken' = MParser trans
+    where
+        trans (TKeyword k:ts) = [(TKeyword k,ts)]
+        trans _ = []
+
+operatorToken' :: TokensParser Token
+operatorToken' = MParser trans
+    where
+        trans (TOperator o:ts) = [(TOperator o,ts)]
+        trans _ = []
+
+lparToken' :: TokensParser Token
+lparToken' = MParser trans
+    where
+        trans (TLPar:ts) = [(TLPar,ts)]
+        trans _ = []
+
+rparToken' :: TokensParser Token
+rparToken' = MParser trans
+    where
+        trans (TRPar:ts) = [(TRPar,ts)]
+        trans _ = []

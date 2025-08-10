@@ -6,6 +6,7 @@ import Expr
 import FullyParenthesisedExprParser as Fpep
 import LeftRecursiveExprParser as Lrep
 import LeftRecursiveExprTokParser as Lretp
+import LeftRecursiveTwoPhaseExprParser as Lr2pep
 
 r1 = parse Fpep.number "123"
 
@@ -52,6 +53,31 @@ r21 = parse Lretp.expr "1*2+3"
 r22 = parse Lretp.expr "1*(2+3)"
 
 r23 = parse Lretp.expr "(1*2)+3"
+
+r24 = parse Lr2pep.tnumber [TInt 3]
+
+r25 = parse Lr2pep.tnumber [TBool True]
+
+r26 = parse Lr2pep.expr "1"
+
+r27 = parse Lr2pep.expr "1 + 2 * 3" -- the tokenizer considers "+2" to be TInt 2, so there must be a space between the + and the 2.
+
+r28 = parse Lr2pep.expr "1+(2*3)"
+
+r29 = parse Lr2pep.expr "(1+ 2)*3" -- the tokenizer considers "+2" to be TInt 2, so there must be a space between the + and the 2.
+
+r30 = parse Lr2pep.expr "1*2+ 3"
+
+r31 = parse Lr2pep.expr "1*(2+ 3)"
+
+r32 = parse Lr2pep.expr "(1*2)+ 3"
+
+r33 = parse Lr2pep.expr' "1 + 2 * 3 + 4"
+
+r34 = parse Lr2pep.expr' "1 * (2 + 3) * 4"
+
+r35 = parse Lr2pep.expr' "1 * 2 + 3 * 4"
+
 
 main = do
     putStrLn "Expression parsing example"
